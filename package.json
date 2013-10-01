@@ -10,5 +10,8 @@
     "ejs": "*",
     "less-middleware": "*",
     "connect-coffee-script":"*"
+	"prelude-ls":"*",
+	"request":"*"
+	
   }
 }
