@@ -1,0 +1,3 @@
+[submodule "d3-template"]
+	path = d3-template
+	url = git@github.com:homam/d3-templates.git
