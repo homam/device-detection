@@ -28,6 +28,13 @@ app.use require('connect-coffee-script')
 
 
 app.get '/', (require './routes').index
+app.get '/api/test/tree/:testid/:from/:to?/:country', (req, res) ->
+	p = req.params
+	p.to = p.to or '2013-10-04'
+	(require './public/javascript/stats').tree(p.testid,p.from,p.to, (obj) ->
+		res.writeHead(200, {'Content-Type': 'application/json'});
+		res.end JSON.stringify obj
+	)
 
 
 

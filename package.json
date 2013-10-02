@@ -8,10 +8,12 @@
   "dependencies": {
     "express": "3.1.0",
     "ejs": "*",
-	"LiveScript": "*",
+    "LiveScript": "*",
     "less-middleware": "*",
-    "connect-coffee-script":"*",
-	"prelude-ls":"*",
-	"request":"*"
+    "connect-coffee-script": "*",
+    "prelude-ls": "*",
+    "request": "*",
+    "moment": "~2.2.1",
+    "requirejs": "*"
   }
 }

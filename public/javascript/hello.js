@@ -9,8 +9,10 @@
       }
     }
   });
+  window.requirejs = require;
+  console.log('before loading fun');
   require(['javascript/fun'], function(fun){
-    console.log(fun);
+    console.log(fun.fuck());
     return console.log("hello!");
   });
 }).call(this);
