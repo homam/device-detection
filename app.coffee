@@ -17,6 +17,7 @@ app.use app.router
 app.use express.favicon()
 
 app.use express.static __dirname + '/public'
+app.use '/javascript', express.static 'public/javascript'
 
 app.use require('less-middleware')
   src: __dirname + '/public'
