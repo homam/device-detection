@@ -1,0 +1,10 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "C:\\GitHub\\device-detection-client",
+			"file_exclude_patterns":  ["*.js"]
+		}
+	]
+}
