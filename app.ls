@@ -6,6 +6,7 @@ stats = (require './stats/stats')
 
 app = express()
 
+
 app.use express.static '/.public'
 
 app.set 'port', (process.env.PORT or 3000)

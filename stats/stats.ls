@@ -13,33 +13,38 @@ request-json = (url, callback) -->
 get-stats = (from, to, visits, country, callback) -->
 	url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetStats?start_date=#{from}&end_date=#{to}&country_id=#{country}&visits=#{visits}" 
 	console.log "api << ", url
-	request-json url, callback
+	obj <- request-json url
+	callback lower-case-data obj
 
 get-test-stats = (testid, from, to, country, callback) -->
 	url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetTestStats?test_id=#{testid}&start_date=#{from}&end_date=#{to}&country_id=#{country}&visits=0"
 	console.log "api << ", url
-	request-json url, callback
+	obj <- request-json url
+	callback lower-case-data obj
+
+
+exports.get-stats = get-stats
 
 
 # stats-
 
 exports.stats-tree = (fromDate, toDate, visits = 0, country = 0, callback) ->
 	data <- (get-stats fromDate, toDate, visits, country)
-	callback <| treefy lower-case-data data
+	callback <| treefy data
 
 exports.stats-summary = (fromDate, toDate, visits = 0, country = 0, callback) ->
 	data <- (get-stats fromDate, toDate, visits, country)
-	callback <| format lower-case-data data
+	callback <| format data
 
 # test-
 
 exports.test-tree = (testId, fromDate, toDate, country = 0, callback) ->
 	data <- (get-test-stats testId, fromDate, toDate, country)
-	callback <| treefy lower-case-data data
+	callback <| treefy data
 
 exports.test-summary = (testId, fromDate, toDate, country = 0, callback) ->
 	data <- (get-test-stats testId, fromDate, toDate, country)
-	callback <| format lower-case-data data
+	callback <| format data
 
 
 
