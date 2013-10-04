@@ -11,18 +11,21 @@ request-json = (url, callback) -->
 	(,,body) <- request url
 	callback <| JSON.parse body
 country-ids <- request-json 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries'
-countryId = (find (-> it.name == 'UAE'), country-ids).id
+
+
+countries = [['KSA', 'sa'], ['Kuwait', 'kw'], ['Bahrain', 'bh'], ['Jordan', 'jo'], ['Qatar', 'qa'], ['Iraq', 'iq'], ['Thailand', 'th'], ['Azerbaijan', 'az']]
 
 now = moment()
 
 
-next = (days) ->
+
+next = (days, country, done) ->
 
 	fromDate = moment('2013-08-12').add('days', days)
 
-	country = 2
+	console.log 'next', country, fromDate.format("YYYY-MM-DD")
 
-	obj <- get-stats fromDate.format("YYYY-MM-DD"), fromDate.add('days', 1).format("YYYY-MM-DD"), 0, countryId
+	obj <- get-stats fromDate.format("YYYY-MM-DD"), fromDate.add('days', 1).format("YYYY-MM-DD"), 0, country.id
 
 	data = flatten [[{
 		brand_name: d.brand,
@@ -46,24 +49,20 @@ next = (days) ->
 
 		} for m in d.stats] for d in obj]
 
-	_<- fs.writeFile 'data/ae-' + (fromDate.add('days', -1).format('YYYY-MM-DD')) + '.csv', (json2csv data)
+	_<- fs.writeFile 'data/' + country.code + '-' + (fromDate.add('days', -1).format('YYYY-MM-DD')) + '.csv', (json2csv data)
 	if not fromDate.add('days', 1).isAfter(now)
-		next(days+1)
+		next(days+1, country, done)
+	else
+		done()
 
 
-next 0
-#console.log json2csv data
 
+next-country = (i) ->
+	[name, code] = countries[i]
+	countryId = (find (-> it.name == name), country-ids).id
+	console.log code, countryId
+	_ <- next 0, {code:code, id: countryId}
+	if i < countries.length-1
+		next-country(i+1)
 
- # { brand: 'ZTE',
- #    device: 'zte_vf945_ver1_subuavodaupdate1',
- #    fall_back: 'zte_vf945_ver1',
- #    id: 14162,
- #    ishtml5: 'full',
- #    model: 'VF945',
- #    os: 'Android',
- #    stats: [ [Object] ],
- #    version: '2.1' } 
-
- #brand_name,model_name,wurfl_device_id,wurfl_fall_back,Method,Visits,Op Sel Visits,Op Sel Visits Only,LP Visits,
- #Submissions,Subscribers,Conv,RealConv,marketing_name,device_os,device_os_version,release_date,mobile_browser
+next-country 0
