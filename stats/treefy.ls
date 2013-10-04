@@ -26,6 +26,9 @@ treefy = do -> (raw) ->
 	# utility function that creates an empty stats object
 	empty-stats = (method) -> {method: method, visits: 0, subscribers: 0}
 
+	empty-device-os = (os) -> {os: os}
+	empty-device-brand = (brand) -> {brand: brand}
+
 	# add all the methods to every record.stats
 	methods = unique flatten (map (-> [m.method for m in it.stats]), data)
 	method-stats-or-empty = (method, stats) -> ((find (-> it.method == method), stats) or empty-stats(method))
@@ -50,6 +53,17 @@ treefy = do -> (raw) ->
 			map (-> it.stats = collect-stats(it)), node.children	
 			r
 			
+	# emptyMaker :: (GroupName, FirstItemInGroup) -> Device
+	# propSelector :: Device -> String
+	group-by-prop = (emptyMaker, propSelector, children) --> 
+		(map (-> a = emptyMaker(it[0], it[1][0]); a.children = it[1]; a) <| obj-to-pairs <| group-by propSelector, children)
+	
+	group-by-brand = (children) -> group-by-prop empty-device-brand, (-> it.brand), children
+	group-by-os = (children) -> group-by-prop empty-device-os, (-> it.os), children
+
+
+	root.children = group-by-os root.children
+	root.children = map (-> it.children = group-by-brand(it.children); it), root.children
 
 	root.stats = collect-stats(root) # root is always a parent
 	root

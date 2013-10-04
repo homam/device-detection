@@ -28,15 +28,16 @@ app.use require('connect-coffee-script') ({
 	bare: true})
 
 
+app.get '/', (req, res) -> res.render 'home/index', {title: ''}
+app.use '/home/javascript', express.static 'views/home/javascript'
+app.use '/home/styles', express.static 'views/home/styles'
+
+
+
 fill-missing-prarams = (p) ->
 	p.from = p.from or moment().format("YYYY-MM-DD")
 	p.to = p.to or moment().add('days',1).format("YYYY-MM-DD")
 	p
-
-
-app.get '/', (require './routes').index
-
-
 
 api-get = (url, transform) ->
 	app.get url, (req, res) ->

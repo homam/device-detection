@@ -6,9 +6,28 @@
         <script src="javascript/libs/require.js"></script>
         <script src="javascript/libs/d3.js"></script>
         <script src="javascript/libs/d3-helper-tooltip.js"></script>
-        <script src="javascript/hello.js"></script>
+        <style>
+        .node circle {
+		  fill: #fff;
+		  stroke: steelblue;
+		  stroke-width: 1.5px;
+		}
+
+		.node {
+		  font: 10px sans-serif;
+		}
+
+		.link {
+		  fill: none;
+		  stroke: #ccc;
+		  stroke-width: 1.5px;
+		}
+        </style>
     </head>
 <body>
     <h1><%= title %></h1>
+
+    <script src="javascript/libs/prelude-browser-min.js"></script>
+    <script src="home/javascript/index.js"></script>
 </body>
 </html>
