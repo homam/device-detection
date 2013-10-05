@@ -7,6 +7,7 @@ header {
   height: 40px;
   left: 0;
   right: 0;
+  z-index: 2;
 }
 header #chosen-methods {
   width: 400px;
@@ -18,6 +19,7 @@ header #chosen-methods {
   left: 0;
   bottom: 100px;
   overflow: auto;
+  z-index: 1;
 }
 .stats {
   position: fixed;

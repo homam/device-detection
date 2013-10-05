@@ -153,7 +153,7 @@
     return [d.y, d.x];
   });
   $svg = d3.select(".tree").append("svg").attr("width", width).attr("height", height).append("g").attr("transform", "translate(40,0)");
-  updateTree = function(root, selectedSubscriptionMethods){
+  updateTree = function(root, selectedSubscriptionMethods, selectedSubscriptionMethodsOr){
     var createMethodFilter, selectedMethodFilter, selectedVisits, selectedSubscribers, selectedStats, ref$, totalVisitsSelected, totalSubscribersSelected, convAverageSelected, convStnDevSelected, transition, color, nodes, links, $link, $node, $nodeEnter, $renderNodeMethodsStats;
     createMethodFilter = function(selectedMethods){
       return function(method){
@@ -182,7 +182,17 @@
     transition = function(node){
       return node.transition().duration(500);
     };
-    root = killChildren(100, selectedVisits, root);
+    if (selectedSubscriptionMethodsOr) {
+      root = killChildren(100, selectedVisits, root);
+    } else {
+      root = killChildrenByCriteria(function(node){
+        return find(function(it){
+          return it.method === 'sms';
+        }, node.stats).visits > 100 && find(function(it){
+          return it.method === 'JAVA_APP';
+        }, node.stats).visits > 100;
+      }, root);
+    }
     color = d3.scale.quantile().range(['#f21b1b', '#ed771c', '#e9ce1e', '#a9e41f', '#53df21', '#22da40', '#23d58e', '#24cbd0', '#257ecb', '#2636c7']);
     color.domain([0, convAverageSelected + 2 * convStnDevSelected]);
     nodes = tree.nodes(root);
@@ -265,15 +275,24 @@
     return $renderNodeMethodsStats(root);
   };
   $.get('/data/ae.json', function(root){
-    updateTree(hardClone(root), null);
+    var updateTreeFromUi;
+    updateTreeFromUi = function(){
+      return updateTree(hardClone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'));
+    };
+    updateTreeFromUi();
     return $(function(){
       d3.select('#chosen-methods').selectAll('option').data(listOfSubscriptioMethods).enter().append('option').text(function(it){
         return it.name;
       });
-      return $('#chosen-methods').chosen().change(function(){
-        var $self;
-        $self = $(this);
-        return updateTree(hardClone(root), $self.val());
+      $('#chosen-methods').chosen().change(updateTreeFromUi);
+      $('#chosen-methods-orand').change(updateTreeFromUi);
+      return $.get('http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', function(countries){
+        d3.select('#chosen-countries').selectAll('option').data(countries).enter().append('option').attr("value", function(it){
+          return it.id;
+        }).text(function(it){
+          return it.name;
+        });
+        return $('#chosen-countries').chosen();
       });
     });
   });

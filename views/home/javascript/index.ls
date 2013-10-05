@@ -80,12 +80,14 @@ $svg = d3.select(".tree").append("svg").attr("width", width).attr("height", heig
 
 # root :: Node
 # selectedSubscriptionMethods :: [String]
+# selectedSubscriptionMethodsOr :: Bool
 # call this function to update the UI and the tree graphics
-update-tree = (root, selectedSubscriptionMethods) ->
+update-tree = (root, selectedSubscriptionMethods, selectedSubscriptionMethodsOr) ->
 
 	# [String] -> (String -> Bool)
 	create-method-filter = (selectedMethods) -> (method) -> method in selectedMethods
 
+	# all if selectedSubscriptionMethods is null
 	# String -> Bool
 	selected-method-filter = if !selectedSubscriptionMethods then (->true) else create-method-filter selectedSubscriptionMethods
 
@@ -115,7 +117,13 @@ update-tree = (root, selectedSubscriptionMethods) ->
 
 	# end selected methods region
 
-	root = kill-children 100, selected-visits, root
+	if selectedSubscriptionMethodsOr
+		root = kill-children 100, selected-visits, root # or
+	else
+		root = kill-children-by-criteria ((node) ->
+			(find (-> it.method == 'sms'), node.stats).visits > 100 and
+			(find (-> it.method == 'JAVA_APP'), node.stats).visits > 100
+		), root # and
 
 
 	color = d3.scale.quantile().range ['#f21b1b', '#ed771c', '#e9ce1e', '#a9e41f', '#53df21', '#22da40', '#23d58e', '#24cbd0', '#257ecb', '#2636c7']
@@ -165,20 +173,27 @@ update-tree = (root, selectedSubscriptionMethods) ->
 root <- $.get '/data/ae.json'
 
 
-# selected methods region
+update-tree-from-ui = ->
+	update-tree hard-clone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked')
 
-update-tree hard-clone(root), null # ['sms', 'smsto', 'mailto', 'JAVA_APP'] #GooglePlay
 
-#setTimeout (-> update-tree root, ['GooglePlay']), 2000
+update-tree-from-ui()
+
 
 
 $ ->
 	# header
 	d3.select('#chosen-methods').selectAll('option').data(listOfSubscriptioMethods)
 	.enter().append('option').text(-> it.name)
-	$('#chosen-methods').chosen().change(->
-		$self = $(this)
-		update-tree hard-clone(root), $self.val()
-	)
+	$('#chosen-methods').chosen().change(update-tree-from-ui)
+
+	$('#chosen-methods-orand').change(update-tree-from-ui)
+
+	countries <- $.get 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries'
+	d3.select('#chosen-countries').selectAll('option').data(countries)
+	.enter().append('option').attr("value", -> it.id).text(-> it.name)
+
+	$('#chosen-countries').chosen()
+
 
 
