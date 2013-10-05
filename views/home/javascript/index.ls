@@ -8,6 +8,8 @@ listOfSubscriptioMethods = [{"id":0,"name":"Unknown", label: "??"},{"id":11,"nam
 
 # utility functions 
 
+format-date = d3.time.format('%Y-%m-%d')
+
 hard-clone = -> JSON.parse JSON.stringify it
 
 trace = (v) ->
@@ -82,7 +84,10 @@ $svg = d3.select(".tree").append("svg").attr("width", width).attr("height", heig
 # selectedSubscriptionMethods :: [String]
 # selectedSubscriptionMethodsOr :: Bool
 # call this function to update the UI and the tree graphics
-update-tree = (root, selectedSubscriptionMethods, selectedSubscriptionMethodsOr) ->
+update-tree = (root, selectedSubscriptionMethods, selectedSubscriptionMethodsOr, excludeDesktop) ->
+
+	if excludeDesktop
+		root.children = filter (-> it.os != 'Desktop'), root.children
 
 	# [String] -> (String -> Bool)
 	create-method-filter = (selectedMethods) -> (method) -> method in selectedMethods
@@ -170,30 +175,50 @@ update-tree = (root, selectedSubscriptionMethods, selectedSubscriptionMethodsOr)
 
 	$render-node-methods-stats root
 
-root <- $.get '/data/ae.json'
 
 
-update-tree-from-ui = ->
-	update-tree hard-clone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked')
-
-
-update-tree-from-ui()
 
 
 
 $ ->
+	root = null
+
+	update-tree-from-ui = ->
+		update-tree hard-clone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true
+
+
+
 	# header
 	d3.select('#chosen-methods').selectAll('option').data(listOfSubscriptioMethods)
 	.enter().append('option').text(-> it.name)
-	$('#chosen-methods').chosen().change(update-tree-from-ui)
+	$('#chosen-methods').chosen().change(->update-tree-from-ui())
 
-	$('#chosen-methods-orand').change(update-tree-from-ui)
+	$('#chosen-methods-orand').change(->update-tree-from-ui())
 
 	countries <- $.get 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries'
 	d3.select('#chosen-countries').selectAll('option').data(countries)
 	.enter().append('option').attr("value", -> it.id).text(-> it.name)
 
-	$('#chosen-countries').chosen()
+	$('#chosen-countries').chosen().change(->re-root())
+
+	now = new Date()
+	$('#fromDate').attr("max", format-date new Date(now.valueOf()-1*24*60*60*1000))
+	.val(format-date new Date(now.valueOf()-2*24*60*60*1000))
+	.change(->re-root())
+
+	$('#toDate').attr("max", format-date now)
+	.val(format-date new Date(now.valueOf()-1*24*60*60*1000))
+	.change(->re-root())
+
+
+	re-root = ->
+		#r <- $.get "data/ae.json"
+		r <- $.get "/api/stats/tree/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}/0"
+		root := r
+		update-tree-from-ui()
+
+	re-root()
+
 
 
 
