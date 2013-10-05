@@ -14,6 +14,8 @@
     "prelude-ls": "*",
     "request": "*",
     "moment": "~2.2.1",
-    "requirejs": "*"
+    "requirejs": "*",
+    "stylus": "*",
+    "nib": "*"
   }
 }

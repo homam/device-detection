@@ -2,7 +2,8 @@ express = require 'express'
 path = require 'path'
 http = require 'http'
 moment = require 'moment'
-stats = (require './stats/stats')
+
+stats = require './stats/stats'
 
 app = express()
 
@@ -30,7 +31,10 @@ app.use require('connect-coffee-script') ({
 
 app.get '/', (req, res) -> res.render 'home/index', {title: ''}
 app.use '/home/javascript', express.static 'views/home/javascript'
-app.use '/home/styles', express.static 'views/home/styles'
+app.use '/home/style', express.static 'views/home/style'
+
+# src: __dirname,
+#    compile: (str, path) -> stylus(str).set('filename', path).set('compress', true).use(nib())
 
 
 
