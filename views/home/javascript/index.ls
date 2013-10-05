@@ -43,14 +43,20 @@ update-all-nodes = (updater, node) -->
 	| otherwise => (map (update-all-nodes updater), node.children)
 	updater node
 
-# remove children with low number of visits
-# visitsSelector: Node -> Number
-kill-children = (minVisits, visitsSelector, node) -->
+
+# remove children that match the criteria
+# criteria: Node -> Bool
+kill-children-by-criteria = (criteria, node) -->
 	| node.children.length == 0 => node
 	| otherwise => 
-		node.children = filter (-> visitsSelector(it) > minVisits), node.children
-		(map (kill-children minVisits, visitsSelector), node.children)
+		node.children = filter (-> criteria it), node.children
+		(map (kill-children-by-criteria criteria), node.children)
 	node
+
+# remove children with low number of visits
+# visitsSelector: Node -> Number
+kill-children = (minVisits, visitsSelector, node) --> 
+	kill-children-by-criteria (-> visitsSelector(it) > minVisits), node
 
 
 # (String -> Bool), Node -> [Visits, Subscribers, Conversion]
@@ -142,6 +148,7 @@ update-tree = (root, selectedSubscriptionMethods) ->
 	$link.exit().remove() # exit
 
 
+	# render stats in footer
 	$render-node-methods-stats = (node) ->
 		#vTotal = sum-visits (->true), node
 		[vSelected, sSelected, cSelected]  = selected-stats node
@@ -166,6 +173,7 @@ update-tree hard-clone(root), null # ['sms', 'smsto', 'mailto', 'JAVA_APP'] #Goo
 
 
 $ ->
+	# header
 	d3.select('#chosen-methods').selectAll('option').data(listOfSubscriptioMethods)
 	.enter().append('option').text(-> it.name)
 	$('#chosen-methods').chosen().change(->
