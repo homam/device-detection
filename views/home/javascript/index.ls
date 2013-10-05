@@ -1,3 +1,34 @@
+# utility functions 
+
+sum-stats = (node, prop) -> fold1 (+) <| ([m[prop] for m in node.stats])
+visits = (node) -> 	sum-stats node, 'visits'
+subscribers = (node) -> sum-stats node, 'subscribers'
+
+# node: any node in the tree
+# func: folding function :: (Node, Acc) -> Acc
+# seed :: Acc
+fold-real-nodes = (node, func, seed) ->
+	| node.children.length == 0 => func(node, seed)
+	| otherwise => 
+		fold ((ac, a) -> fold-real-nodes(a, func, ac)), seed, node.children
+
+# update all nodes with accumulated stats info
+update-all-nodes = (updater, node) -->
+	| node.children.length == 0 => node
+	| otherwise => (map (update-all-nodes updater), node.children)
+	updater node
+
+# remove children with low number of visits
+kill-children = (minVisits, node) -->
+	| node.children.length == 0 => node
+	| otherwise => 
+		node.children = filter (-> it.visits > minVisits), node.children
+		(map (kill-children minVisits), node.children)
+	node
+
+
+
+
 window.requirejs = require
 prelude = require('prelude-ls')
 
@@ -22,51 +53,41 @@ svg = d3.select("body").append("svg").attr("width", width).attr("height", height
 root <- $.get '/data/ae.json'
 #map (-> it.children = []) <| flatten <| map (-> it.children) <| map (-> console.log(it.length); it[0]) <| (map -> it.children) root.children
 
-sum-stats = (node, prop) -> fold1 (+) <| ([m[prop] for m in node.stats])
-visits = (node) -> 	sum-stats node, 'visits'
-subscribers = (node) -> sum-stats node, 'subscribers'
+
+selectedSubscriptionMethods = ['sms', 'smsto', 'mailto', 'JAVA_APP'] #GooglePlay
+
+stats-filter = (node) -> [m for m in node.stats when m.method in selectedSubscriptionMethods]
+
+update-all-nodes ((node) -> 
+	node.stats = stats-filter node
+	node
+	), root
+
+
+update-all-nodes ((node) ->
+	node.visits = visits node
+	node.subscribers = subscribers node
+	node.conv = node.subscribers/node.visits
+	node), root
+
 
 totalVisits = visits root
 totalSubscribers = subscribers root
 totalConv = totalSubscribers / totalVisits
 
 
-# node: any node in the tree
-# func: folding function :: (Node, Acc) -> Acc
-# seed :: Acc
-operate-on-real-nodes = (node, func, seed) ->
-	| node.children.length == 0 => func(node, seed)
-	| otherwise => 
-		fold ((ac, a) -> operate-on-real-nodes(a, func, ac)), seed, node.children
 
-# update all nodes with accumulated stats info
-update-all-nodes = (node) ->
-	| node.children.length == 0 => node
-	| otherwise => (map update-all-nodes, node.children)
-	node.visits = visits node
-	node.subscribers = subscribers node
-	node.conv = node.subscribers/node.visits
-	node
+root = kill-children 0, root
 
-# remove children with low number of visits
-kill-children = (node) ->
-	| node.children.length == 0 => node
-	| otherwise => 
-		node.children = filter (-> it.visits > 100), node.children
-		(map kill-children, node.children)
-	node
-
-update-all-nodes root
-
-convStnDev = operate-on-real-nodes root, ((n, acc) -> acc + sqrt(pow(n.conv - totalConv, 2))*n.visits/totalVisits), 0
-#convAverage = operate-on-real-nodes root, ((n, acc) -> acc + n.conv*n.visits/totalVisits), 0
+convStnDev = fold-real-nodes root, ((n, acc) -> acc + sqrt(pow(n.conv - totalConv, 2))*n.visits/totalVisits), 0
+convAverage = fold-real-nodes root, ((n, acc) -> acc + n.conv*n.visits/totalVisits), 0
 
 console.log totalConv
-#console.log convAverage
+console.log convAverage
 console.log convStnDev
 
 
-root = kill-children root
+root = kill-children 100, root
 
 
 
