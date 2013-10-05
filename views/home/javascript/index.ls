@@ -8,11 +8,20 @@ listOfSubscriptioMethods = [{"id":0,"name":"Unknown", label: "??"},{"id":11,"nam
 
 # utility functions 
 
+hard-clone = -> JSON.parse JSON.stringify it
+
 trace = (v) ->
 	console.log v
 	v
 
 sor = (a,b) -> if (!!a and a.length > 0 and a != ' ') then a else b
+
+
+shorten-wurfl-device-name = (name) ->
+	if !name 
+		return name
+	verIndex = name.indexOf("ver")
+	return if verIndex > 0 then name.substr(0, verIndex+1) + '..' else name
 
 # methodSelector :: Method -> Bool
 # prop :: String
@@ -72,7 +81,7 @@ update-tree = (root, selectedSubscriptionMethods) ->
 	create-method-filter = (selectedMethods) -> (method) -> method in selectedMethods
 
 	# String -> Bool
-	selected-method-filter = create-method-filter selectedSubscriptionMethods
+	selected-method-filter = if !selectedSubscriptionMethods then (->true) else create-method-filter selectedSubscriptionMethods
 
 	# Node -> Number
 	selected-visits = sum-visits selected-method-filter
@@ -124,7 +133,7 @@ update-tree = (root, selectedSubscriptionMethods) ->
 			# dStats :: [Method, Code, Visits, Subscribers, Conversion]
 			dStats = [[m,l] ++ stats(create-method-filter([m]), d) for {name:m, label:l} in listOfSubscriptioMethods]
 			dMethodsWithVisits = fold ((acc, c) -> if c[2] > 0 then acc ++ c[1] else acc), [], dStats 
-			name + ' {' + (join '|', dMethodsWithVisits) + '}'
+			shorten-wurfl-device-name(name) + ' {' + (join '|', dMethodsWithVisits) + '}'
 		)
 		.attr('fill', -> color selected-stats(it)[2])
 		.on('mousedown', -> $render-node-methods-stats it) # update
@@ -151,9 +160,17 @@ root <- $.get '/data/ae.json'
 
 # selected methods region
 
-update-tree root, ['sms', 'smsto', 'mailto', 'JAVA_APP'] #GooglePlay
+update-tree hard-clone(root), null # ['sms', 'smsto', 'mailto', 'JAVA_APP'] #GooglePlay
 
-setTimeout (-> update-tree root, ['GooglePlay']), 2000
+#setTimeout (-> update-tree root, ['GooglePlay']), 2000
 
+
+$ ->
+	d3.select('#chosen-methods').selectAll('option').data(listOfSubscriptioMethods)
+	.enter().append('option').text(-> it.name)
+	$('#chosen-methods').chosen().change(->
+		$self = $(this)
+		update-tree hard-clone(root), $self.val()
+	)
 
 

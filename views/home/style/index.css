@@ -1,9 +1,19 @@
 body {
   font: 12px sans-serif;
 }
-.tree {
+header {
   position: fixed;
   top: 0;
+  height: 40px;
+  left: 0;
+  right: 0;
+}
+header #chosen-methods {
+  width: 400px;
+}
+.tree {
+  position: fixed;
+  top: 40px;
   right: 0;
   left: 0;
   bottom: 100px;
