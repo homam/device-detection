@@ -1,13 +1,57 @@
+body {
+  font: 12px sans-serif;
+}
+.tree {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 100px;
+  overflow: auto;
+}
+.stats {
+  position: fixed;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  height: 100px;
+  overflow: auto;
+}
 .node circle {
   fill: #fff;
   stroke: #4682b4;
   stroke-width: 1.5px;
 }
 .node {
-  font: 10px sans-serif;
+  font-size: 10px;
 }
 .link {
   fill: none;
   stroke: #ccc;
   stroke-width: 1.5px;
+}
+ul.node-methods-stats {
+  margin: 3px 0 0 0;
+  padding: 0;
+}
+ul.node-methods-stats > li {
+  display: inline-block;
+  width: 25%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  outline: solid 1px #c0c0c0;
+}
+ul.node-methods-stats > li > span {
+  display: inline-block;
+  margin: 0 0.2em 0 0.2em;
+  white-space: nowrap;
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  width: 40px;
+}
+ul.node-methods-stats > li > span.method {
+  font-weight: bold;
+  width: 50px;
 }
