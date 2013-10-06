@@ -126,8 +126,7 @@ update-tree = (root, selectedSubscriptionMethods, selectedSubscriptionMethodsOr,
 		root = kill-children 100, selected-visits, root # or
 	else
 		root = kill-children-by-criteria ((node) ->
-			(find (-> it.method == 'sms'), node.stats).visits > 100 and
-			(find (-> it.method == 'JAVA_APP'), node.stats).visits > 100
+			all (->it), [((find (-> it.method == m), node.stats).visits > 100) for m in selectedSubscriptionMethods]
 		), root # and
 
 
@@ -199,7 +198,7 @@ $ ->
 	d3.select('#chosen-countries').selectAll('option').data(countries)
 	.enter().append('option').attr("value", -> it.id).text(-> it.name)
 
-	$('#chosen-countries').chosen().change(->re-root())
+	$('#chosen-countries').chosen({allow_single_deselect: true}).change(->re-root())
 
 	now = new Date()
 	$('#fromDate').attr("max", format-date new Date(now.valueOf()-1*24*60*60*1000))

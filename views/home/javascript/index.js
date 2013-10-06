@@ -192,11 +192,20 @@
       root = killChildren(100, selectedVisits, root);
     } else {
       root = killChildrenByCriteria(function(node){
-        return find(function(it){
-          return it.method === 'sms';
-        }, node.stats).visits > 100 && find(function(it){
-          return it.method === 'JAVA_APP';
-        }, node.stats).visits > 100;
+        var m;
+        return all(function(it){
+          return it;
+        }, (function(){
+          var i$, ref$, len$, results$ = [];
+          for (i$ = 0, len$ = (ref$ = selectedSubscriptionMethods).length; i$ < len$; ++i$) {
+            m = ref$[i$];
+            results$.push(find(fn$, node.stats).visits > 100);
+          }
+          return results$;
+          function fn$(it){
+            return it.method === m;
+          }
+        }()));
       }, root);
     }
     color = d3.scale.quantile().range(['#f21b1b', '#ed771c', '#e9ce1e', '#a9e41f', '#53df21', '#22da40', '#23d58e', '#24cbd0', '#257ecb', '#2636c7']);
@@ -302,7 +311,9 @@
       }).text(function(it){
         return it.name;
       });
-      $('#chosen-countries').chosen().change(function(){
+      $('#chosen-countries').chosen({
+        allow_single_deselect: true
+      }).change(function(){
         return reRoot();
       });
       now = new Date();
