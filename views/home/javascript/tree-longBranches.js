@@ -152,7 +152,7 @@
     var tree, diagonal, $svg, updateTree;
     width == null && (width = 1000);
     height == null && (height = 1000);
-    tree = d3.layout.tree().size([height, width - 160]);
+    tree = d3.layout.tree().size([height, width - 260]);
     diagonal = d3.svg.diagonal().projection(function(d){
       return [d.y, d.x];
     });

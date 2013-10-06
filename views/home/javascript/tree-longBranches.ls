@@ -74,7 +74,7 @@ stats = (methodFilter, node) ->
 exports = exports or this
 
 exports.tree-long-branches = (width = 1000, height = 1000) ->
-	tree = d3.layout.tree().size([height, width - 160]);
+	tree = d3.layout.tree().size([height, width - 260]);
 
 	diagonal = d3.svg.diagonal().projection((d) -> [d.y, d.x])
 

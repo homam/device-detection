@@ -99,6 +99,7 @@
       });
       $li = d3.select('.node-methods-stats').selectAll('li').data(node.stats);
       $liEnter = $li.enter().append('li');
+      $li.exit().remove();
       renderMethodStats = function(className, text){
         $liEnter.append("span").attr("class", className);
         return $li.select("span." + className).text(text);
@@ -141,7 +142,10 @@
     });
     return $.get('http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', function(countries){
       var now, reRoot;
-      d3.select('#chosen-countries').selectAll('option').data(countries).enter().append('option').attr("value", function(it){
+      d3.select('#chosen-countries').selectAll('option').data([{
+        id: 0,
+        name: ''
+      }].concat(countries)).enter().append('option').attr("value", function(it){
         return it.id;
       }).text(function(it){
         return it.name;
@@ -161,8 +165,34 @@
       $('#chosen-tree-ui-type').chosen().change(function(){
         return changeTreeUi($(this).val());
       });
+      (function(){
+        return $.get("/api/tests/true", function(tests){
+          d3.select('#chosen-tests').selectAll('option').data([{
+            device: '',
+            id: 0
+          }].concat(tests)).enter().append('option').attr('value', function(it){
+            return it.id;
+          }).text(function(it){
+            if (it.id === 0) {
+              return '';
+            } else {
+              return it.device + " (" + it.id + ")";
+            }
+          });
+          return $('#chosen-tests').chosen({
+            allow_single_deselect: true
+          }).change(function(){
+            return reRoot();
+          });
+        });
+      })();
       reRoot = function(){
-        return $.get("/api/stats/tree/" + $('#fromDate').val() + "/" + $('#toDate').val() + "/" + $('#chosen-countries').val() + "/0", function(r){
+        var url;
+        url = !$('#chosen-tests').val() || parseInt($('#chosen-tests').val()) === 0
+          ? "/api/stats/tree/" + $('#fromDate').val() + "/" + $('#toDate').val() + "/" + $('#chosen-countries').val() + "/0"
+          : "/api/test/tree/" + $('#chosen-tests').val() + "/" + $('#fromDate').val() + "/" + $('#toDate').val() + "/" + $('#chosen-countries').val();
+        console.log('*** ', url);
+        return $.get(url, function(r){
           root = r;
           return updateTreeFromUi();
         });

@@ -46,7 +46,17 @@ exports.test-summary = (testId, fromDate, toDate, country = 0, callback) ->
 	data <- (get-test-stats testId, fromDate, toDate, country)
 	callback <| format data
 
+exports.tests-list = (activeOnly, callback) ->
+	raw <- request-json "http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetTestsSummary?status=#{if activeOnly then 'Active' else 'none'}"
 
+	callback <| [{
+		id: r.Test_ID
+		start: r.StartDate
+		end:r.EndDate
+		device:r.device
+		status: r.Status
+		visits: r.Visits
+	} for r in raw]
 
 
 format = (data) ->

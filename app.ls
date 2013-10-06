@@ -41,6 +41,7 @@ app.use '/home/style', express.static 'views/home/style'
 fill-missing-prarams = (p) ->
 	p.from = p.from or moment().format("YYYY-MM-DD")
 	p.to = p.to or moment().add('days',1).format("YYYY-MM-DD")
+	p.country = p.country or 0
 	p
 
 api-get = (url, transform) ->
@@ -58,6 +59,8 @@ api-res-end = (res, obj) -->
 api-get '/api/test/tree/:testid/:from?/:to?/:country?', (p, callback) -> stats.test-tree p.testid,p.from,p.to, p.country, callback
 
 api-get '/api/test/summary/:testid/:from?/:to?/:country?', (p, callback) -> stats.test-summary p.testid,p.from,p.to, p.country, callback
+
+api-get '/api/tests/:activeOnly?', (p, callback) -> stats.tests-list p.activeOnly, callback
 
 
 # stats

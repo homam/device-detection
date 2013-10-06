@@ -40,6 +40,7 @@ $ ->
 		# render stats for each subscription method
 		$li = d3.select('.node-methods-stats').selectAll('li').data(node.stats)
 		$liEnter = $li.enter().append('li')
+		$li.exit().remove()
 		render-method-stats = (className, text) -> 
 			$liEnter.append("span").attr("class", className)
 			$li.select("span.#{className}").text(text)
@@ -71,7 +72,7 @@ $ ->
 	$('#kill-children-threshold').change(->update-tree-from-ui!)
 
 	countries <- $.get 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries'
-	d3.select('#chosen-countries').selectAll('option').data(countries)
+	d3.select('#chosen-countries').selectAll('option').data([{id: 0, name: ''}] ++ countries)
 	.enter().append('option').attr("value", -> it.id).text(-> it.name)
 
 	$('#chosen-countries').chosen({allow_single_deselect: true}).change(->re-root())
@@ -87,16 +88,30 @@ $ ->
 
 	$('#chosen-tree-ui-type').chosen().change(-> change-tree-ui $(this).val())
 
-	
+	do ->
+		tests <- $.get "/api/tests/true"
+		d3.select('#chosen-tests').selectAll('option').data([{device: '', id: 0}] ++ tests)
+		.enter().append('option').attr('value', -> it.id).text(-> if it.id==0 then '' else "#{it.device} (#{it.id})")
+
+		$('#chosen-tests').chosen({allow_single_deselect:true}).change(->re-root!)
 
 
 	re-root = ->
 		#r <- $.get "data/ae.json"
-		r <- $.get "/api/stats/tree/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}/0"
+
+		url = if !$('#chosen-tests').val() or parseInt($('#chosen-tests').val()) == 0 then
+			"/api/stats/tree/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}/0"
+		else
+			"/api/test/tree/#{$('#chosen-tests').val()}/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}"
+
+		console.log '*** ', url
+		r <- $.get url
 		root := r
 		update-tree-from-ui()
 
 	re-root()
+
+
 
 
 
