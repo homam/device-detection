@@ -43,6 +43,10 @@ header #chosen-methods {
   stroke: #ccc;
   stroke-width: 1.5px;
 }
+rect {
+  fill: none;
+  stroke: #fff;
+}
 ul.node-methods-stats {
   margin: 3px 0 0 0;
   padding: 0;
