@@ -29,7 +29,7 @@ $ ->
 	$(window).on "tree/node-selected", (.., node)->
 		#vTotal = sum-visits (->true), node
 		#[vSelected, sSelected, cSelected]  = selected-stats node
-		$('.stats h2').text(node.device `sor` node.brand `sor` node.os `sor` '')
+		$('.stats h2').text("#{node.brand} - #{node.model} - #{node.os} : '" + (node.device `sor` node.brand `sor` node.os `sor` '') + "'")
 
 		allMethodsSummary = fold ((acc, a) -> {visits: a.visits+acc.visits, subscribers: a.subscribers+acc.subscribers}), {visits: 0, subscribers: 0}, node.stats
 		allMethodsSummary.converson = allMethodsSummary.subscribers/allMethodsSummary.visits

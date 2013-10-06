@@ -77,7 +77,7 @@
   $(function(){
     return $(window).on("tree/node-selected", function(ref$, node){
       var allMethodsSummary, $summarySpan, $li, $liEnter, renderMethodStats;
-      $('.stats h2').text(sor(sor(sor(node.device, node.brand), node.os), ''));
+      $('.stats h2').text((node.brand + " - " + node.model + " - " + node.os + " : '") + sor(sor(sor(node.device, node.brand), node.os), '') + "'");
       allMethodsSummary = fold(function(acc, a){
         return {
           visits: a.visits + acc.visits,
