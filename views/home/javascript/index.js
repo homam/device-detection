@@ -73,7 +73,7 @@
     'tree-long-branches': treeLongBranches,
     'tree-map': treeMap
   };
-  treeChart = treeLongBranches(1000, 1000);
+  treeChart = treeMap(screen.width - 10, 1000);
   $(function(){
     return $(window).on("tree/node-selected", function(ref$, node){
       var allMethodsSummary, $summarySpan, $li, $liEnter, renderMethodStats;
@@ -120,7 +120,7 @@
     root = null;
     changeTreeUi = function(type){
       $(".tree").html('');
-      treeChart = treeUiTypes[type](1000, 1000);
+      treeChart = treeUiTypes[type](screen.width - 10, 1000);
       return updateTreeFromUi();
     };
     updateTreeFromUi = function(){

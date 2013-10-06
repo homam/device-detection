@@ -22,7 +22,7 @@ treeUiTypes = {
 	'tree-map': tree-map
 }
 
-treeChart =  tree-long-branches(1000,1000) #tree-map(1300,500) # tree-long-branches(1000,1000) 
+treeChart = tree-map(screen.width-10,1000) #tree-map(1300,500) # tree-long-branches(1000,1000) 
 
 
 $ ->
@@ -52,12 +52,11 @@ $ ->
 	change-tree-ui = (type) ->
 		$(".tree").html('')
 
-		treeChart := treeUiTypes[type](1000,1000)
+		treeChart := treeUiTypes[type](screen.width-10,1000)
 		update-tree-from-ui()
 
 	update-tree-from-ui = ->
 		treeChart.update-tree hard-clone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
-
 
 
 	# header
@@ -87,6 +86,8 @@ $ ->
 	.change(->re-root())
 
 	$('#chosen-tree-ui-type').chosen().change(-> change-tree-ui $(this).val())
+
+	
 
 
 	re-root = ->
