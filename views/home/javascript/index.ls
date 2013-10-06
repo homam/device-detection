@@ -7,6 +7,10 @@ listOfSubscriptioMethods = [{"id":0,"name":"Unknown", label: "??"},{"id":11,"nam
 
 format-date = d3.time.format('%Y-%m-%d')
 
+pow = Math.pow
+pow2 = (n) -> Math.pow n, 2
+sqrt = Math.sqrt
+
 sor = (a,b) -> if (!!a and a.length > 0 and a != ' ') then a else b
 
 hard-clone = -> JSON.parse JSON.stringify it
@@ -29,13 +33,15 @@ $ ->
 	$(window).on "tree/node-selected", (.., node)->
 		#vTotal = sum-visits (->true), node
 		#[vSelected, sSelected, cSelected]  = selected-stats node
-		$('.stats h2').text("#{node.brand} - #{node.model} - #{node.os} : '" + (node.device `sor` node.brand `sor` node.os `sor` '') + "'")
+		name = join ' - ', [v for v in [node.os, node.brand, node.model] when !!v]
+		$('.stats h2').text("#{name} : '" + (node.device `sor` node.brand `sor` node.os `sor` '') + "'")
 
 		allMethodsSummary = fold ((acc, a) -> {visits: a.visits+acc.visits, subscribers: a.subscribers+acc.subscribers}), {visits: 0, subscribers: 0}, node.stats
-		allMethodsSummary.converson = allMethodsSummary.subscribers/allMethodsSummary.visits
+		allMethodsSummary.conversion = allMethodsSummary.subscribers/allMethodsSummary.visits
 		$summarySpan = d3.select('.all-methods-summary').selectAll('span').data(obj-to-pairs allMethodsSummary)
 		$summarySpan.enter().append('span').attr('class',->it[0])
-		$summarySpan.text(-> (if 'converson' == it[0] then d3.format('.1%') else d3.format(','))  it[1])
+		$summarySpan.text(-> (if 'conversion' == it[0] then d3.format('.1%') else d3.format(','))  it[1])
+
 
 		# render stats for each subscription method
 		$li = d3.select('.node-methods-stats').selectAll('li').data(node.stats)
@@ -45,7 +51,8 @@ $ ->
 			$liEnter.append("span").attr("class", className)
 			$li.select("span.#{className}").text(text)
 		each (-> render-method-stats it, (m) -> m[it]), ['method', 'visits', 'subscribers']
-		render-method-stats 'converson', (m) -> d3.format('.1%')(if m.visits == 0 then 0 else (m.subscribers / m.visits))
+		render-method-stats 'conversion', (m) -> d3.format('.1%')(if m.visits == 0 then 0 else (m.subscribers / m.visits))
+		$li.transition().duration(200).style("opacity", (-> if it.visits < (allMethodsSummary.visits * 0.1) then 0.5 else 1))
 
 $ ->
 	root = null
@@ -57,6 +64,31 @@ $ ->
 		update-tree-from-ui()
 
 	update-tree-from-ui = ->
+
+		find-method = (name, stats) ->
+			(find (-> it.method == name), stats) or {visits: 0, subscribers: 0}
+		
+		calc-conv = (m) ->
+			if m.visits == 0 then 0 else m.subscribers/m.visits
+
+		# in utils.ls
+		stndDev-of-conversion-for-method = (methodName, node) -> 
+			sqrt fold-real-nodes node, ((n, acc) ->
+				if !!n.children and n.children.length>0
+					return 0
+				
+				method = find-method methodName, n.stats
+				rootMethod = find-method methodName, node.stats
+
+				v = pow2(calc-conv(method) - calc-conv(rootMethod)) * method.visits/rootMethod.visits
+
+				return v+acc
+			), 0
+
+		
+		#((find (-> it.method == name), root.stats))
+		console.log [[name, calc-conv find-method(name, root.stats), (stndDev-of-conversion-for-method name, root)] for  {id,name} in listOfSubscriptioMethods]
+
 		treeChart.update-tree hard-clone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
 
 
@@ -65,16 +97,15 @@ $ ->
 	.enter().append('option').text(-> it.name)
 	$('#chosen-methods').chosen().change(->update-tree-from-ui())
 
-	$('#chosen-methods-orand').change(->
-		$('#kill-children-threshold').val(0)
-		update-tree-from-ui())
+	$('#chosen-methods-orand').change ->
+		$('#kill-children-threshold').val(if $(this).is(':checked') then 100 else 0)
+		update-tree-from-ui!
 
 	$('#kill-children-threshold').change(->update-tree-from-ui!)
 
 	countries <- $.get 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries'
 	d3.select('#chosen-countries').selectAll('option').data([{id: 0, name: ''}] ++ countries)
 	.enter().append('option').attr("value", -> it.id).text(-> it.name)
-
 	$('#chosen-countries').chosen({allow_single_deselect: true}).change(->re-root())
 
 	now = new Date()
@@ -104,6 +135,7 @@ $ ->
 		else
 			"/api/test/tree/#{$('#chosen-tests').val()}/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}"
 
+		url = "data/ae.json"
 		console.log '*** ', url
 		r <- $.get url
 		root := r

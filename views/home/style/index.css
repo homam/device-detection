@@ -10,6 +10,11 @@ header {
   z-index: 2;
   background-color: #c0c0c0;
 }
+header input[type=text] {
+  margin: 1px 0;
+  padding: 5px;
+  height: 15px;
+}
 header #chosen-methods {
   width: 400px;
 }

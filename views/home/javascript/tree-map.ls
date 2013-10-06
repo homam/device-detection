@@ -4,8 +4,6 @@ prelude = require('prelude-ls')
 pow = Math.pow
 sqrt = Math.sqrt
 
-listOfSubscriptioMethods = [{"id":0,"name":"Unknown", label: "??"},{"id":11,"name":"WAP", label: "DW"},{"id":1,"name":"sms", label: "SMS"},{"id":2,"name":"smsto", label: "STO"},{"id":3,"name":"mailto", label: "MTO"},{"id":7,"name":"SMS_WAP", label: "MO"},{"id":8,"name":"LINKCLICK", label: "LKC"},{"id":6,"name":"JAVA_APP", label: "JA"},{"id":4,"name":"LinkAndPIN", label: "LnP"},{"id":5,"name":"LinkAndPrefilledPIN", label: "LnPP"},{"id":9,"name":"WAPPIN", label: "Pin"},{"id":10,"name":"GooglePlay", label: "GP"}]
-
 # utility functions 
 
 format-date = d3.time.format('%Y-%m-%d')
@@ -31,13 +29,6 @@ _sum-stats = (methodSelector, prop, node) --> fold1 (+) <| ([m[prop] for m in no
 sum-visits = (methodSelector, node) --> 	_sum-stats methodSelector, 'visits', node
 sum-subscribers = (methodSelector, node) --> _sum-stats methodSelector, 'subscribers', node
 
-# node: any node in the tree
-# func: folding function :: (Node, Acc) -> Acc
-# seed :: Acc
-fold-real-nodes = (node, func, seed) ->
-	| node.children.length == 0 => func(node, seed)
-	| otherwise => 
-		fold ((ac, a) -> fold-real-nodes(a, func, ac)), seed, node.children
 
 # update all nodes with accumulated stats info
 update-all-nodes = (updater, node) -->
@@ -82,8 +73,6 @@ exports.tree-map = (width = 1000, height = 1000) ->
 	# selectedSubscriptionMethodsOr :: Bool
 	# call this function to update the UI and the tree graphics
 	update-tree = (root, selectedSubscriptionMethods, selectedSubscriptionMethodsOr, excludeDesktop, killChildrenThreshold = 100) ->
-
-		console.log 'update-tree()'
 
 		if excludeDesktop
 			root.children = filter (-> it.os != 'Desktop'), root.children

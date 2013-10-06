@@ -31,13 +31,6 @@ _sum-stats = (methodSelector, prop, node) --> fold1 (+) <| ([m[prop] for m in no
 sum-visits = (methodSelector, node) --> 	_sum-stats methodSelector, 'visits', node
 sum-subscribers = (methodSelector, node) --> _sum-stats methodSelector, 'subscribers', node
 
-# node: any node in the tree
-# func: folding function :: (Node, Acc) -> Acc
-# seed :: Acc
-fold-real-nodes = (node, func, seed) ->
-	| node.children.length == 0 => func(node, seed)
-	| otherwise => 
-		fold ((ac, a) -> fold-real-nodes(a, func, ac)), seed, node.children
 
 # update all nodes with accumulated stats info
 update-all-nodes = (updater, node) -->
