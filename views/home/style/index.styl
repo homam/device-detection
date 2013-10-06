@@ -11,17 +11,23 @@ header
 
 	#chosen-methods
 		width: 400px
+
+	#chosen-tree-ui-type
+		width: 120px
+	#kill-children-threshold
+		width: 60px
 .tree
 	position: fixed
-	top: 60px; right: 0; left: 0; bottom: 100px;
+	top: 60px; right: 0; left: 0; bottom: 70px;
 	overflow: auto
 	z-index: 1
 
-.stats
+footer
 	position: fixed
 	right: 0; left: 0; bottom: 0;
-	height: 100px
+	height: 70px
 	overflow: auto
+	background-color: silver
 
 
 .node circle
@@ -43,19 +49,42 @@ rect
 	fill: none;
 	stroke: #fff;
 
-ul.node-methods-stats
-	margin: 3px 0 0 0; padding: 0;
-	> li
+
+
+footer 
+	values-container()
+		outline: solid 1px gray
+	value-field()
 		display: inline-block;
-		width: 25%;
-		margin: 0; padding: 0;
-		list-style:none;
-		outline: solid 1px silver
-		> span
-			display: inline-block;
-			margin: 0 .2em 0 .2em;
+		margin: 0 .2em 0 .2em;
+		overflow: ellipsis
+		width: 40px
+
+	.summary
+	
+		clear:both
+		h2
+			display: inline-block
+			margin:0; padding:0;
+			width: 25%
+			font-size: 14px
 			overflow: ellipsis
-			width: 40px
-			&.method 
-				font-weight: bold
-				width: 50px
+		.all-methods-summary
+			display: inline-block
+			values-container()
+			> span
+				value-field()
+
+	ul.node-methods-stats
+		margin: 3px 0 0 0; padding: 0;
+		> li
+			display: inline-block;
+			width: 25%;
+			margin: 0; padding: 0;
+			list-style:none;
+			values-container()
+			> span
+				value-field()
+				&.method 
+					font-weight: bold
+					width: 50px

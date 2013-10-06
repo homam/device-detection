@@ -7,6 +7,8 @@ listOfSubscriptioMethods = [{"id":0,"name":"Unknown", label: "??"},{"id":11,"nam
 
 format-date = d3.time.format('%Y-%m-%d')
 
+sor = (a,b) -> if (!!a and a.length > 0 and a != ' ') then a else b
+
 hard-clone = -> JSON.parse JSON.stringify it
 
 trace = (v) ->
@@ -15,14 +17,27 @@ trace = (v) ->
 
 # end utility functions region
 
+treeUiTypes = {
+	'tree-long-branches': tree-long-branches
+	'tree-map': tree-map
+}
 
-treeChart = tree-map(1300,500) # tree-long-branches(1000,1000) 
+treeChart =  tree-long-branches(1000,1000) #tree-map(1300,500) # tree-long-branches(1000,1000) 
 
 
 $ ->
 	$(window).on "tree/node-selected", (.., node)->
 		#vTotal = sum-visits (->true), node
 		#[vSelected, sSelected, cSelected]  = selected-stats node
+		$('.stats h2').text(node.device `sor` node.brand `sor` node.os `sor` '')
+
+		allMethodsSummary = fold ((acc, a) -> {visits: a.visits+acc.visits, subscribers: a.subscribers+acc.subscribers}), {visits: 0, subscribers: 0}, node.stats
+		allMethodsSummary.converson = allMethodsSummary.subscribers/allMethodsSummary.visits
+		$summarySpan = d3.select('.all-methods-summary').selectAll('span').data(obj-to-pairs allMethodsSummary)
+		$summarySpan.enter().append('span').attr('class',->it[0])
+		$summarySpan.text(-> (if 'converson' == it[0] then d3.format('.1%') else d3.format(','))  it[1])
+
+		# render stats for each subscription method
 		$li = d3.select('.node-methods-stats').selectAll('li').data(node.stats)
 		$liEnter = $li.enter().append('li')
 		render-method-stats = (className, text) -> 
@@ -33,6 +48,12 @@ $ ->
 
 $ ->
 	root = null
+
+	change-tree-ui = (type) ->
+		$(".tree").html('')
+
+		treeChart := treeUiTypes[type](1000,1000)
+		update-tree-from-ui()
 
 	update-tree-from-ui = ->
 		treeChart.update-tree hard-clone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
@@ -48,6 +69,8 @@ $ ->
 		$('#kill-children-threshold').val(0)
 		update-tree-from-ui())
 
+	$('#kill-children-threshold').change(->update-tree-from-ui!)
+
 	countries <- $.get 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries'
 	d3.select('#chosen-countries').selectAll('option').data(countries)
 	.enter().append('option').attr("value", -> it.id).text(-> it.name)
@@ -62,6 +85,8 @@ $ ->
 	$('#toDate').attr("max", format-date now)
 	.val(format-date new Date(now.valueOf()-1*24*60*60*1000))
 	.change(->re-root())
+
+	$('#chosen-tree-ui-type').chosen().change(-> change-tree-ui $(this).val())
 
 
 	re-root = ->

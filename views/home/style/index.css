@@ -13,22 +13,29 @@ header {
 header #chosen-methods {
   width: 400px;
 }
+header #chosen-tree-ui-type {
+  width: 120px;
+}
+header #kill-children-threshold {
+  width: 60px;
+}
 .tree {
   position: fixed;
   top: 60px;
   right: 0;
   left: 0;
-  bottom: 100px;
+  bottom: 70px;
   overflow: auto;
   z-index: 1;
 }
-.stats {
+footer {
   position: fixed;
   right: 0;
   left: 0;
   bottom: 0;
-  height: 100px;
+  height: 70px;
   overflow: auto;
+  background-color: #c0c0c0;
 }
 .node circle {
   fill: #fff;
@@ -47,19 +54,25 @@ rect {
   fill: none;
   stroke: #fff;
 }
-ul.node-methods-stats {
-  margin: 3px 0 0 0;
-  padding: 0;
+footer .summary {
+  clear: both;
 }
-ul.node-methods-stats > li {
+footer .summary h2 {
   display: inline-block;
-  width: 25%;
   margin: 0;
   padding: 0;
-  list-style: none;
-  outline: solid 1px #c0c0c0;
+  width: 25%;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
 }
-ul.node-methods-stats > li > span {
+footer .summary .all-methods-summary {
+  display: inline-block;
+  outline: solid 1px #808080;
+}
+footer .summary .all-methods-summary > span {
   display: inline-block;
   margin: 0 0.2em 0 0.2em;
   white-space: nowrap;
@@ -68,7 +81,28 @@ ul.node-methods-stats > li > span {
   text-overflow: ellipsis;
   width: 40px;
 }
-ul.node-methods-stats > li > span.method {
+footer ul.node-methods-stats {
+  margin: 3px 0 0 0;
+  padding: 0;
+}
+footer ul.node-methods-stats > li {
+  display: inline-block;
+  width: 25%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  outline: solid 1px #808080;
+}
+footer ul.node-methods-stats > li > span {
+  display: inline-block;
+  margin: 0 0.2em 0 0.2em;
+  white-space: nowrap;
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  width: 40px;
+}
+footer ul.node-methods-stats > li > span.method {
   font-weight: bold;
   width: 50px;
 }

@@ -18,6 +18,10 @@
             <input type="date" id="toDate" min="2013-07-01" max="2013-10-04"/>
         </div>
 		<div>
+            <select id="chosen-tree-ui-type">
+                <option value="tree-long-branches">Branches</option>
+                <option value="tree-map">Tree Map</option>
+            </select>
             <input id="kill-children-threshold" type="text" value="100" />
             <select id="chosen-methods" multiple data-placeholder="Methods..."></select>
             <input type="checkbox" id="chosen-methods-orand" checked />
@@ -27,9 +31,15 @@
     <section class="tree">
     	
     </section>
-    <section class="stats">
+    <footer class="stats">
+        <div class="summary">
+            <h2></h2>
+            <div class='all-methods-summary'>
+            </div>
+        </div>
+
     	<ul class="node-methods-stats"></ul>
-    </section>
+    </footer>
 
     <script src="javascript/libs/prelude-browser-min.js"></script>
     <script src="home/javascript/tree-longBranches.js"></script>
