@@ -10,8 +10,8 @@ request-json = (url, callback) -->
 	(,,body) <- request url
 	callback <| JSON.parse body
 
-get-stats = (from, to, visits, country, callback) -->
-	url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetStats?start_date=#{from}&end_date=#{to}&country_id=#{country}&visits=#{visits}" 
+get-stats = (from, to, visits, country, ref, callback) -->
+	url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetStats?start_date=#{from}&end_date=#{to}&country_id=#{country}&visits=#{visits}&ref_id=#{ref}" 
 	console.log "api << ", url
 	obj <- request-json url
 	callback lower-case-data obj
@@ -28,12 +28,12 @@ exports.get-stats = get-stats
 
 # stats-
 
-exports.stats-tree = (fromDate, toDate, visits = 0, country = 0, callback) ->
-	data <- (get-stats fromDate, toDate, visits, country)
+exports.stats-tree = (fromDate, toDate, visits = 0, country = 0, ref = 0, callback) ->
+	data <- (get-stats fromDate, toDate, visits, country, ref)
 	callback <| treefy data
 
-exports.stats-summary = (fromDate, toDate, visits = 0, country = 0, callback) ->
-	data <- (get-stats fromDate, toDate, visits, country)
+exports.stats-summary = (fromDate, toDate, visits = 0, country = 0, ref = 0, callback) ->
+	data <- (get-stats fromDate, toDate, visits, country, ref)
 	callback <| format data
 
 # test-

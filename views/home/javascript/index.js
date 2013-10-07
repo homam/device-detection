@@ -148,6 +148,10 @@
     };
     updateTreeFromUi = function(){
       var findMethod, calcConv, stndDevOfConversionForMethod, id, name;
+      if (!root.stats) {
+        console.log('nothing!');
+        return;
+      }
       findMethod = function(name, stats){
         return find(function(it){
           return it.method === name;
@@ -179,7 +183,7 @@
         var i$, ref$, len$, ref1$, results$ = [];
         for (i$ = 0, len$ = (ref$ = listOfSubscriptioMethods).length; i$ < len$; ++i$) {
           ref1$ = ref$[i$], id = ref1$.id, name = ref1$.name;
-          results$.push([name, calcConv(findMethod(name, root.stats), stndDevOfConversionForMethod(name, root))]);
+          results$.push([name, calcConv(findMethod(name, root.stats)), stndDevOfConversionForMethod(name, root)]);
         }
         return results$;
       }()));
@@ -199,7 +203,6 @@
       return updateTreeFromUi();
     });
     return $.get('http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', function(countries){
-      var now, reRoot;
       d3.select('#chosen-countries').selectAll('option').data([{
         id: 0,
         name: ''
@@ -208,55 +211,74 @@
       }).text(function(it){
         return it.name;
       });
+      $('#chosen-countries').val(2);
       $('#chosen-countries').chosen({
         allow_single_deselect: true
       }).change(function(){
         return reRoot();
       });
-      now = new Date();
-      $('#fromDate').attr("max", formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).val(formatDate(new Date(now.valueOf() - 2 * 24 * 60 * 60 * 1000))).change(function(){
+      return $.get('http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs', function(refs){
+        var $select, now, reRoot;
+        $select = d3.select('#chosen-refs');
+        refs[0] = {
+          name: '',
+          id: 0
+        };
+        $select.selectAll('option').data(refs).enter().append('option').attr("value", function(it){
+          return it.id;
+        }).text(function(it){
+          return it.name;
+        });
+        $('#chosen-refs').val(0);
+        $('#chosen-refs').chosen({
+          allow_single_deselect: true
+        }).change(function(){
+          return reRoot();
+        });
+        now = new Date();
+        $('#fromDate').attr("max", formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).val(formatDate(new Date(now.valueOf() - 2 * 24 * 60 * 60 * 1000))).change(function(){
+          return reRoot();
+        });
+        $('#toDate').attr("max", formatDate(now)).val(formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).change(function(){
+          return reRoot();
+        });
+        $('#chosen-tree-ui-type').chosen().change(function(){
+          return changeTreeUi($(this).val());
+        });
+        (function(){
+          return $.get("/api/tests/true", function(tests){
+            d3.select('#chosen-tests').selectAll('option').data([{
+              device: '',
+              id: 0
+            }].concat(tests)).enter().append('option').attr('value', function(it){
+              return it.id;
+            }).text(function(it){
+              if (it.id === 0) {
+                return '';
+              } else {
+                return it.device + " (" + it.id + ")";
+              }
+            });
+            return $('#chosen-tests').chosen({
+              allow_single_deselect: true
+            }).change(function(){
+              return reRoot();
+            });
+          });
+        })();
+        reRoot = function(){
+          var url;
+          url = !$('#chosen-tests').val() || parseInt($('#chosen-tests').val()) === 0
+            ? "/api/stats/tree/" + $('#fromDate').val() + "/" + $('#toDate').val() + "/" + $('#chosen-countries').val() + "/" + $('#chosen-refs').val() + "/0"
+            : "/api/test/tree/" + $('#chosen-tests').val() + "/" + $('#fromDate').val() + "/" + $('#toDate').val() + "/" + $('#chosen-countries').val() + "/" + $('#chosen-refs').val() + "/0";
+          console.log('*** ', url);
+          return $.get(url, function(r){
+            root = r;
+            return updateTreeFromUi();
+          });
+        };
         return reRoot();
       });
-      $('#toDate').attr("max", formatDate(now)).val(formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).change(function(){
-        return reRoot();
-      });
-      $('#chosen-tree-ui-type').chosen().change(function(){
-        return changeTreeUi($(this).val());
-      });
-      (function(){
-        return $.get("/api/tests/true", function(tests){
-          d3.select('#chosen-tests').selectAll('option').data([{
-            device: '',
-            id: 0
-          }].concat(tests)).enter().append('option').attr('value', function(it){
-            return it.id;
-          }).text(function(it){
-            if (it.id === 0) {
-              return '';
-            } else {
-              return it.device + " (" + it.id + ")";
-            }
-          });
-          return $('#chosen-tests').chosen({
-            allow_single_deselect: true
-          }).change(function(){
-            return reRoot();
-          });
-        });
-      })();
-      reRoot = function(){
-        var url;
-        url = !$('#chosen-tests').val() || parseInt($('#chosen-tests').val()) === 0
-          ? "/api/stats/tree/" + $('#fromDate').val() + "/" + $('#toDate').val() + "/" + $('#chosen-countries').val() + "/0"
-          : "/api/test/tree/" + $('#chosen-tests').val() + "/" + $('#fromDate').val() + "/" + $('#toDate').val() + "/" + $('#chosen-countries').val();
-        url = "data/ae.json";
-        console.log('*** ', url);
-        return $.get(url, function(r){
-          root = r;
-          return updateTreeFromUi();
-        });
-      };
-      return reRoot();
     });
   });
 }).call(this);

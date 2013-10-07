@@ -42,6 +42,7 @@ fill-missing-prarams = (p) ->
 	p.from = p.from or moment().format("YYYY-MM-DD")
 	p.to = p.to or moment().add('days',1).format("YYYY-MM-DD")
 	p.country = p.country or 0
+	p.ref = p.ref or 0
 	p
 
 api-get = (url, transform) ->
@@ -65,9 +66,9 @@ api-get '/api/tests/:activeOnly?', (p, callback) -> stats.tests-list p.activeOnl
 
 # stats
 
-api-get '/api/stats/tree/:from?/:to?/:country?/:visits?', (p, callback) -> stats.stats-tree p.from,p.to, p.visits, p.country, callback
+api-get '/api/stats/tree/:from?/:to?/:country?/:ref?/:visits?', (p, callback) -> stats.stats-tree p.from,p.to, p.visits, p.country, p.ref, callback
 
-api-get '/api/stats/summary/:from?/:to?/:country?/:visits?', (p, callback) -> stats.stats-summary p.from,p.to, p.visits, p.country, callback
+api-get '/api/stats/summary/:from?/:to?/:country?/:ref?/:visits?', (p, callback) -> stats.stats-summary p.from,p.to, p.visits, p.country, p.ref, callback
 
 
 

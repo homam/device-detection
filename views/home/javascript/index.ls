@@ -30,6 +30,7 @@ treeChart = tree-map(screen.width-10,1000) #tree-map(1300,500) # tree-long-branc
 
 
 $ ->
+	# node clicked
 	$(window).on "tree/node-selected", (.., node)->
 		#vTotal = sum-visits (->true), node
 		#[vSelected, sSelected, cSelected]  = selected-stats node
@@ -61,9 +62,13 @@ $ ->
 		$(".tree").html('')
 
 		treeChart := treeUiTypes[type](screen.width-10,1000)
-		update-tree-from-ui()
+		update-tree-from-ui!
 
 	update-tree-from-ui = ->
+		if !root.stats then
+			#$(".tree").html('Nothing!')
+			console.log 'nothing!'
+			return
 
 		find-method = (name, stats) ->
 			(find (-> it.method == name), stats) or {visits: 0, subscribers: 0}
@@ -87,7 +92,7 @@ $ ->
 
 		
 		#((find (-> it.method == name), root.stats))
-		console.log [[name, calc-conv find-method(name, root.stats), (stndDev-of-conversion-for-method name, root)] for  {id,name} in listOfSubscriptioMethods]
+		console.log [[name, calc-conv(find-method(name, root.stats)), (stndDev-of-conversion-for-method name, root)] for  {id,name} in listOfSubscriptioMethods]
 
 		treeChart.update-tree hard-clone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
 
@@ -103,10 +108,24 @@ $ ->
 
 	$('#kill-children-threshold').change(->update-tree-from-ui!)
 
+	
 	countries <- $.get 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries'
 	d3.select('#chosen-countries').selectAll('option').data([{id: 0, name: ''}] ++ countries)
 	.enter().append('option').attr("value", -> it.id).text(-> it.name)
+	$('#chosen-countries').val(2) # select uae as the intial country TODO: get it from query string
 	$('#chosen-countries').chosen({allow_single_deselect: true}).change(->re-root())
+
+
+	refs <- $.get 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs'
+	$select = d3.select('#chosen-refs')
+	refs[0] = {name: '', id: 0}
+	$select.selectAll('option').data(refs)
+	.enter().append('option').attr("value", -> it.id).text(-> it.name)
+	$('#chosen-refs').val(0) # select uae as the intial country TODO: get it from query string
+	$('#chosen-refs').chosen({allow_single_deselect: true}).change(->re-root())
+
+
+
 
 	now = new Date()
 	$('#fromDate').attr("max", format-date new Date(now.valueOf()-1*24*60*60*1000))
@@ -131,11 +150,11 @@ $ ->
 		#r <- $.get "data/ae.json"
 
 		url = if !$('#chosen-tests').val() or parseInt($('#chosen-tests').val()) == 0 then
-			"/api/stats/tree/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}/0"
+			"/api/stats/tree/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}/#{$('#chosen-refs').val()}/0"
 		else
-			"/api/test/tree/#{$('#chosen-tests').val()}/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}"
+			"/api/test/tree/#{$('#chosen-tests').val()}/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}/#{$('#chosen-refs').val()}/0"
 
-		url = "data/ae.json"
+		#url = "data/ae.json"
 		console.log '*** ', url
 		r <- $.get url
 		root := r

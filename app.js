@@ -36,6 +36,7 @@
     p.from = p.from || moment().format("YYYY-MM-DD");
     p.to = p.to || moment().add('days', 1).format("YYYY-MM-DD");
     p.country = p.country || 0;
+    p.ref = p.ref || 0;
     return p;
   };
   apiGet = function(url, transform){
@@ -64,11 +65,11 @@
   apiGet('/api/tests/:activeOnly?', function(p, callback){
     return stats.testsList(p.activeOnly, callback);
   });
-  apiGet('/api/stats/tree/:from?/:to?/:country?/:visits?', function(p, callback){
-    return stats.statsTree(p.from, p.to, p.visits, p.country, callback);
+  apiGet('/api/stats/tree/:from?/:to?/:country?/:ref?/:visits?', function(p, callback){
+    return stats.statsTree(p.from, p.to, p.visits, p.country, p.ref, callback);
   });
-  apiGet('/api/stats/summary/:from?/:to?/:country?/:visits?', function(p, callback){
-    return stats.statsSummary(p.from, p.to, p.visits, p.country, callback);
+  apiGet('/api/stats/summary/:from?/:to?/:country?/:ref?/:visits?', function(p, callback){
+    return stats.statsSummary(p.from, p.to, p.visits, p.country, p.ref, callback);
   });
   http.createServer(app).listen(app.get('port'), function(_){
     return console.log("express started at port " + app.get('port'));
