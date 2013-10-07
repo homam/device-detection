@@ -97,6 +97,21 @@ $ ->
 		treeChart.update-tree hard-clone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
 
 
+	re-root = ->
+		#r <- $.get "data/ae.json"
+
+		url = if !$('#chosen-tests').val() or parseInt($('#chosen-tests').val()) == 0 then
+			"/api/stats/tree/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}/#{$('#chosen-refs').val()}/0"
+		else
+			"/api/test/tree/#{$('#chosen-tests').val()}/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}/#{$('#chosen-refs').val()}/0"
+
+		#url = "data/ae.json"
+		console.log '*** ', url
+		r <- $.get url
+		root := r
+		update-tree-from-ui!
+
+
 	# header
 	d3.select('#chosen-methods').selectAll('option').data(listOfSubscriptioMethods)
 	.enter().append('option').text(-> it.name)
@@ -146,19 +161,6 @@ $ ->
 		$('#chosen-tests').chosen({allow_single_deselect:true}).change(->re-root!)
 
 
-	re-root = ->
-		#r <- $.get "data/ae.json"
-
-		url = if !$('#chosen-tests').val() or parseInt($('#chosen-tests').val()) == 0 then
-			"/api/stats/tree/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}/#{$('#chosen-refs').val()}/0"
-		else
-			"/api/test/tree/#{$('#chosen-tests').val()}/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}/#{$('#chosen-refs').val()}/0"
-
-		#url = "data/ae.json"
-		console.log '*** ', url
-		r <- $.get url
-		root := r
-		update-tree-from-ui()
 
 	re-root()
 

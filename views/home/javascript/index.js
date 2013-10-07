@@ -139,7 +139,7 @@
     });
   });
   $(function(){
-    var root, changeTreeUi, updateTreeFromUi;
+    var root, changeTreeUi, updateTreeFromUi, reRoot;
     root = null;
     changeTreeUi = function(type){
       $(".tree").html('');
@@ -189,6 +189,17 @@
       }()));
       return treeChart.updateTree(hardClone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val()));
     };
+    reRoot = function(){
+      var url;
+      url = !$('#chosen-tests').val() || parseInt($('#chosen-tests').val()) === 0
+        ? "/api/stats/tree/" + $('#fromDate').val() + "/" + $('#toDate').val() + "/" + $('#chosen-countries').val() + "/" + $('#chosen-refs').val() + "/0"
+        : "/api/test/tree/" + $('#chosen-tests').val() + "/" + $('#fromDate').val() + "/" + $('#toDate').val() + "/" + $('#chosen-countries').val() + "/" + $('#chosen-refs').val() + "/0";
+      console.log('*** ', url);
+      return $.get(url, function(r){
+        root = r;
+        return updateTreeFromUi();
+      });
+    };
     d3.select('#chosen-methods').selectAll('option').data(listOfSubscriptioMethods).enter().append('option').text(function(it){
       return it.name;
     });
@@ -218,7 +229,7 @@
         return reRoot();
       });
       return $.get('http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs', function(refs){
-        var $select, now, reRoot;
+        var $select, now;
         $select = d3.select('#chosen-refs');
         refs[0] = {
           name: '',
@@ -266,17 +277,6 @@
             });
           });
         })();
-        reRoot = function(){
-          var url;
-          url = !$('#chosen-tests').val() || parseInt($('#chosen-tests').val()) === 0
-            ? "/api/stats/tree/" + $('#fromDate').val() + "/" + $('#toDate').val() + "/" + $('#chosen-countries').val() + "/" + $('#chosen-refs').val() + "/0"
-            : "/api/test/tree/" + $('#chosen-tests').val() + "/" + $('#fromDate').val() + "/" + $('#toDate').val() + "/" + $('#chosen-countries').val() + "/" + $('#chosen-refs').val() + "/0";
-          console.log('*** ', url);
-          return $.get(url, function(r){
-            root = r;
-            return updateTreeFromUi();
-          });
-        };
         return reRoot();
       });
     });
