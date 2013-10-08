@@ -99,13 +99,15 @@ $ ->
 
 	val = (cssSelector) -> $(cssSelector).val() || '0'
 
-	re-root = (url) ->
+	re-root = (url) -->
 
 		#url = "data/ae.json"
 		console.log '*** ', url
 		r <- $.get url
 		root := r
 		update-tree-from-ui!
+
+	last-re-root-func = null
 
 	re-root-country = ->
 		$('#chosen-superCampaigns').select2('val', '')
@@ -115,14 +117,18 @@ $ ->
 		else
 			"/api/test/tree/#{val('#chosen-tests')}/#{val('#fromDate')}/#{val('#toDate')}/#{val('#chosen-countries')}/#{val('#chosen-refs')}"
 
+		last-re-root-func := re-root-country
 		re-root url
 
 	re-root-superCampaign = ->
 		$('#chosen-countries, #chosen-refs, #chosen-tests').select2('val','')
 
 		url = "/api/stats/tree-by-superCampaign/#{val('#fromDate')}/#{val('#toDate')}/#{val('#chosen-superCampaigns')}/#{val('#chosen-refs')}/0"
+
+		last-re-root-func := re-root-superCampaign
 		re-root url
 
+	last-re-root-func = re-root-country	
 
 
 	# header
@@ -150,7 +156,7 @@ $ ->
 	_ <- populate-chosen-select($('#chosen-countries').on('change', -> re-root-country!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', 
 		((countries) -> [{}] ++ countries), 2) # select uae as the intial country TODO: get it from query string
 
-	_ <- populate-chosen-select($('#chosen-refs').on('change', -> re-root-country!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs',
+	_ <- populate-chosen-select($('#chosen-refs').on('change', -> last-re-root-func!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs',
 		((refs)-> refs[0] = {}; refs), '') # TODO: get default ref from QueryString
 
 	_ <- populate-chosen-select($('#chosen-superCampaigns').on('change', -> re-root-superCampaign!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetSuperCampaigns',
@@ -158,7 +164,7 @@ $ ->
 
 
 	do ->
-		_ <- populate-chosen-select($('#chosen-tests').on('change', -> re-root-country!), '/api/tests/true',
+		_ <- populate-chosen-select($('#chosen-tests').on('change', -> last-re-root-func!), '/api/tests/true',
 			((tests)->  [{}] ++ [{id: t.id, name: "#{t.device} (#{t.id})"} for t in tests]), '')
 
 
@@ -176,7 +182,7 @@ $ ->
 
 
 
-	re-root-country!
+	last-re-root-func!
 
 
 

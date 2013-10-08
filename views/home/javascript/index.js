@@ -139,7 +139,7 @@
     });
   });
   $(function(){
-    var root, changeTreeUi, updateTreeFromUi, val, reRoot, reRootCountry, reRootSuperCampaign, populateChosenSelect;
+    var root, changeTreeUi, updateTreeFromUi, val, reRoot, lastReRootFunc, reRootCountry, reRootSuperCampaign, populateChosenSelect;
     root = null;
     changeTreeUi = function(type){
       $(".tree").html('');
@@ -199,20 +199,24 @@
         return updateTreeFromUi();
       });
     };
+    lastReRootFunc = null;
     reRootCountry = function(){
       var url;
       $('#chosen-superCampaigns').select2('val', '');
       url = !$('#chosen-tests').val() || parseInt($('#chosen-tests').val()) === 0
         ? "/api/stats/tree/" + val('#fromDate') + "/" + val('#toDate') + "/" + val('#chosen-countries') + "/" + val('#chosen-refs') + "/0"
         : "/api/test/tree/" + val('#chosen-tests') + "/" + val('#fromDate') + "/" + val('#toDate') + "/" + val('#chosen-countries') + "/" + val('#chosen-refs');
+      lastReRootFunc = reRootCountry;
       return reRoot(url);
     };
     reRootSuperCampaign = function(){
       var url;
       $('#chosen-countries, #chosen-refs, #chosen-tests').select2('val', '');
       url = "/api/stats/tree-by-superCampaign/" + val('#fromDate') + "/" + val('#toDate') + "/" + val('#chosen-superCampaigns') + "/" + val('#chosen-refs') + "/0";
+      lastReRootFunc = reRootSuperCampaign;
       return reRoot(url);
     };
+    lastReRootFunc = reRootCountry;
     d3.select('#chosen-methods').selectAll('option').data(listOfSubscriptioMethods).enter().append('option').text(function(it){
       return it.name;
     });
@@ -249,7 +253,7 @@
       return [{}].concat(countries);
     }, 2, function(_){
       return populateChosenSelect($('#chosen-refs').on('change', function(){
-        return reRootCountry();
+        return lastReRootFunc();
       }), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs', function(refs){
         refs[0] = {};
         return refs;
@@ -264,7 +268,7 @@
           var now;
           (function(){
             return populateChosenSelect($('#chosen-tests').on('change', function(){
-              return reRootCountry();
+              return lastReRootFunc();
             }), '/api/tests/true', function(tests){
               var t;
               return [{}].concat((function(){
@@ -290,7 +294,7 @@
           $('#chosen-tree-ui-type').select2().change(function(){
             return changeTreeUi($(this).val());
           });
-          return reRootCountry();
+          return lastReRootFunc();
         });
       });
     });
