@@ -37,7 +37,7 @@
     p.to = p.to || moment().add('days', 1).format("YYYY-MM-DD");
     p.country = p.country || 0;
     p.ref = p.ref || 0;
-    p.superCampaign = 0;
+    p.superCampaign = p.superCampaign || 0;
     return p;
   };
   apiGet = function(url, transform){

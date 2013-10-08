@@ -97,21 +97,32 @@ $ ->
 		treeChart.update-tree hard-clone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
 
 
-	re-root = ->
-		#r <- $.get "data/ae.json"
+	val = (cssSelector) -> $(cssSelector).val() || '0'
 
-		val = (cssSelector) -> $(cssSelector).val() || '0'
-
-		url = if !$('#chosen-tests').val() or parseInt($('#chosen-tests').val()) == 0 then
-			"/api/stats/tree/#{val('#fromDate')}/#{val('#toDate')}/#{val('#chosen-countries')}/#{val('#chosen-refs')}/0"
-		else
-			"/api/test/tree/#{val('#chosen-tests')}/#{val('#fromDate')}/#{val('#toDate')}/#{val('#chosen-countries')}/#{val('#chosen-refs')}"
+	re-root = (url) ->
 
 		#url = "data/ae.json"
 		console.log '*** ', url
 		r <- $.get url
 		root := r
 		update-tree-from-ui!
+
+	re-root-country = ->
+		$('#chosen-superCampaigns').select2('val', '')
+
+		url = if !$('#chosen-tests').val() or parseInt($('#chosen-tests').val()) == 0 then
+			"/api/stats/tree/#{val('#fromDate')}/#{val('#toDate')}/#{val('#chosen-countries')}/#{val('#chosen-refs')}/0"
+		else
+			"/api/test/tree/#{val('#chosen-tests')}/#{val('#fromDate')}/#{val('#toDate')}/#{val('#chosen-countries')}/#{val('#chosen-refs')}"
+
+		re-root url
+
+	re-root-superCampaign = ->
+		$('#chosen-countries, #chosen-refs, #chosen-tests').select2('val','')
+
+		url = "/api/stats/tree-by-superCampaign/#{val('#fromDate')}/#{val('#toDate')}/#{val('#chosen-superCampaigns')}/#{val('#chosen-refs')}/0"
+		re-root url
+
 
 
 	# header
@@ -126,29 +137,29 @@ $ ->
 	$('#kill-children-threshold').change(->update-tree-from-ui!)
 
 	# callback :: ($jQuerySelect) -> void
-	populate-chosen-select = (cssSelector, url, mapFunc, defaultValue, callback) ->
+	populate-chosen-select = ($select, url, mapFunc, defaultValue, callback) ->
 		data <- $.get url
 		data  = mapFunc data
-		d3.select(cssSelector).selectAll('option').data(data)
+		d3.select($select[0]).selectAll('option').data(data)
 		.enter().append('option').attr("value", -> it.id).text(-> it.name)
-		$select = $(cssSelector).val(defaultValue) 
-		$select.select2({width: 'element', allowClear: true}).change(->re-root())
+		$select.select2({width: 'element', allowClear: true}).select2('val', defaultValue)
 		callback $select
 
 
 	
-	_ <- populate-chosen-select('#chosen-countries', 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', 
+	_ <- populate-chosen-select($('#chosen-countries').on('change', -> re-root-country!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', 
 		((countries) -> [{}] ++ countries), 2) # select uae as the intial country TODO: get it from query string
 
-	_ <- populate-chosen-select('#chosen-refs', 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs',
-		((refs)-> refs[0] = {}; refs), 0) # TODO: get default ref from QueryString
+	_ <- populate-chosen-select($('#chosen-refs').on('change', -> re-root-country!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs',
+		((refs)-> refs[0] = {}; refs), '') # TODO: get default ref from QueryString
 
-	_ <- populate-chosen-select('#chosen-superCampaigns', 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetSuperCampaigns',
-		((superCampaigns)->  [{}] ++ (filter (-> it.name.indexOf('[') != 0), superCampaigns)), 0) # TODO: get default ref from QueryString
+	_ <- populate-chosen-select($('#chosen-superCampaigns').on('change', -> re-root-superCampaign!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetSuperCampaigns',
+		((superCampaigns)->  [{}] ++ (filter (-> it.name.indexOf('[') != 0), superCampaigns)), '') # TODO: get default ref from QueryString
+
 
 	do ->
-		_ <- populate-chosen-select('#chosen-tests', '/api/tests/true',
-			((tests)->  [{}] ++ [{id: t.id, name: "#{t.device} (#{t.id})"} for t in tests]), 0)
+		_ <- populate-chosen-select($('#chosen-tests').on('change', -> re-root-country!), '/api/tests/true',
+			((tests)->  [{}] ++ [{id: t.id, name: "#{t.device} (#{t.id})"} for t in tests]), '')
 
 
 	now = new Date()
@@ -165,7 +176,7 @@ $ ->
 
 
 
-	re-root()
+	re-root-country!
 
 
 

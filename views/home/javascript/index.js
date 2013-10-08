@@ -139,7 +139,7 @@
     });
   });
   $(function(){
-    var root, changeTreeUi, updateTreeFromUi, reRoot, populateChosenSelect;
+    var root, changeTreeUi, updateTreeFromUi, val, reRoot, reRootCountry, reRootSuperCampaign, populateChosenSelect;
     root = null;
     changeTreeUi = function(type){
       $(".tree").html('');
@@ -189,19 +189,29 @@
       }()));
       return treeChart.updateTree(hardClone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val()));
     };
-    reRoot = function(){
-      var val, url;
-      val = function(cssSelector){
-        return $(cssSelector).val() || '0';
-      };
-      url = !$('#chosen-tests').val() || parseInt($('#chosen-tests').val()) === 0
-        ? "/api/stats/tree/" + val('#fromDate') + "/" + val('#toDate') + "/" + val('#chosen-countries') + "/" + val('#chosen-refs') + "/0"
-        : "/api/test/tree/" + val('#chosen-tests') + "/" + val('#fromDate') + "/" + val('#toDate') + "/" + val('#chosen-countries') + "/" + val('#chosen-refs');
+    val = function(cssSelector){
+      return $(cssSelector).val() || '0';
+    };
+    reRoot = function(url){
       console.log('*** ', url);
       return $.get(url, function(r){
         root = r;
         return updateTreeFromUi();
       });
+    };
+    reRootCountry = function(){
+      var url;
+      $('#chosen-superCampaigns').select2('val', '');
+      url = !$('#chosen-tests').val() || parseInt($('#chosen-tests').val()) === 0
+        ? "/api/stats/tree/" + val('#fromDate') + "/" + val('#toDate') + "/" + val('#chosen-countries') + "/" + val('#chosen-refs') + "/0"
+        : "/api/test/tree/" + val('#chosen-tests') + "/" + val('#fromDate') + "/" + val('#toDate') + "/" + val('#chosen-countries') + "/" + val('#chosen-refs');
+      return reRoot(url);
+    };
+    reRootSuperCampaign = function(){
+      var url;
+      $('#chosen-countries, #chosen-refs, #chosen-tests').select2('val', '');
+      url = "/api/stats/tree-by-superCampaign/" + val('#fromDate') + "/" + val('#toDate') + "/" + val('#chosen-superCampaigns') + "/" + val('#chosen-refs') + "/0";
+      return reRoot(url);
     };
     d3.select('#chosen-methods').selectAll('option').data(listOfSubscriptioMethods).enter().append('option').text(function(it){
       return it.name;
@@ -218,40 +228,44 @@
     $('#kill-children-threshold').change(function(){
       return updateTreeFromUi();
     });
-    populateChosenSelect = function(cssSelector, url, mapFunc, defaultValue, callback){
+    populateChosenSelect = function($select, url, mapFunc, defaultValue, callback){
       return $.get(url, function(data){
-        var $select;
         data = mapFunc(data);
-        d3.select(cssSelector).selectAll('option').data(data).enter().append('option').attr("value", function(it){
+        d3.select($select[0]).selectAll('option').data(data).enter().append('option').attr("value", function(it){
           return it.id;
         }).text(function(it){
           return it.name;
         });
-        $select = $(cssSelector).val(defaultValue);
         $select.select2({
           width: 'element',
           allowClear: true
-        }).change(function(){
-          return reRoot();
-        });
+        }).select2('val', defaultValue);
         return callback($select);
       });
     };
-    return populateChosenSelect('#chosen-countries', 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', function(countries){
+    return populateChosenSelect($('#chosen-countries').on('change', function(){
+      return reRootCountry();
+    }), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', function(countries){
       return [{}].concat(countries);
     }, 2, function(_){
-      return populateChosenSelect('#chosen-refs', 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs', function(refs){
+      return populateChosenSelect($('#chosen-refs').on('change', function(){
+        return reRootCountry();
+      }), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs', function(refs){
         refs[0] = {};
         return refs;
-      }, 0, function(_){
-        return populateChosenSelect('#chosen-superCampaigns', 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetSuperCampaigns', function(superCampaigns){
+      }, '', function(_){
+        return populateChosenSelect($('#chosen-superCampaigns').on('change', function(){
+          return reRootSuperCampaign();
+        }), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetSuperCampaigns', function(superCampaigns){
           return [{}].concat(filter(function(it){
             return it.name.indexOf('[') !== 0;
           }, superCampaigns));
-        }, 0, function(_){
+        }, '', function(_){
           var now;
           (function(){
-            return populateChosenSelect('#chosen-tests', '/api/tests/true', function(tests){
+            return populateChosenSelect($('#chosen-tests').on('change', function(){
+              return reRootCountry();
+            }), '/api/tests/true', function(tests){
               var t;
               return [{}].concat((function(){
                 var i$, ref$, len$, results$ = [];
@@ -264,7 +278,7 @@
                 }
                 return results$;
               }()));
-            }, 0, function(_){});
+            }, '', function(_){});
           })();
           now = new Date();
           $('#fromDate').attr("max", formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).val(formatDate(new Date(now.valueOf() - 2 * 24 * 60 * 60 * 1000))).change(function(){
@@ -276,7 +290,7 @@
           $('#chosen-tree-ui-type').select2().change(function(){
             return changeTreeUi($(this).val());
           });
-          return reRoot();
+          return reRootCountry();
         });
       });
     });

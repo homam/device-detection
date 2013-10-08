@@ -43,7 +43,7 @@ fill-missing-prarams = (p) ->
 	p.to = p.to or moment().add('days',1).format("YYYY-MM-DD")
 	p.country = p.country or 0
 	p.ref = p.ref or 0
-	p.superCampaign = 0
+	p.superCampaign = p.superCampaign or 0
 	p
 
 api-get = (url, transform) ->
