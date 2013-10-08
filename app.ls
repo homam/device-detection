@@ -43,6 +43,7 @@ fill-missing-prarams = (p) ->
 	p.to = p.to or moment().add('days',1).format("YYYY-MM-DD")
 	p.country = p.country or 0
 	p.ref = p.ref or 0
+	p.superCampaign = 0
 	p
 
 api-get = (url, transform) ->
@@ -57,7 +58,7 @@ api-res-end = (res, obj) -->
 
 # test
 
-api-get '/api/test/tree/:testid/:from?/:to?/:country?', (p, callback) -> stats.test-tree p.testid,p.from,p.to, p.country, callback
+api-get '/api/test/tree/:testid/:from?/:to?/:country?/:ref?', (p, callback) -> stats.test-tree p.testid,p.from,p.to, p.country, callback
 
 api-get '/api/test/summary/:testid/:from?/:to?/:country?', (p, callback) -> stats.test-summary p.testid,p.from,p.to, p.country, callback
 
@@ -70,7 +71,7 @@ api-get '/api/stats/tree/:from?/:to?/:country?/:ref?/:visits?', (p, callback) ->
 
 api-get '/api/stats/summary/:from?/:to?/:country?/:ref?/:visits?', (p, callback) -> stats.stats-summary p.from,p.to, p.visits, p.country, p.ref, callback
 
-
+api-get '/api/stats/tree-by-superCampaign/:from?/:to?/:superCampaign?/:ref?/:visits?', (p, callback) -> stats.stats-tree-by-superCampaign p.from,p.to, p.visits, p.superCampaign, p.ref, callback
 
 
 _ <- http.createServer(app).listen app.get('port')

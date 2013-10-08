@@ -37,6 +37,7 @@
     p.to = p.to || moment().add('days', 1).format("YYYY-MM-DD");
     p.country = p.country || 0;
     p.ref = p.ref || 0;
+    p.superCampaign = 0;
     return p;
   };
   apiGet = function(url, transform){
@@ -56,7 +57,7 @@
       return res.end(JSON.stringify.apply(this, arguments));
     }(obj);
   });
-  apiGet('/api/test/tree/:testid/:from?/:to?/:country?', function(p, callback){
+  apiGet('/api/test/tree/:testid/:from?/:to?/:country?/:ref?', function(p, callback){
     return stats.testTree(p.testid, p.from, p.to, p.country, callback);
   });
   apiGet('/api/test/summary/:testid/:from?/:to?/:country?', function(p, callback){
@@ -70,6 +71,9 @@
   });
   apiGet('/api/stats/summary/:from?/:to?/:country?/:ref?/:visits?', function(p, callback){
     return stats.statsSummary(p.from, p.to, p.visits, p.country, p.ref, callback);
+  });
+  apiGet('/api/stats/tree-by-superCampaign/:from?/:to?/:superCampaign?/:ref?/:visits?', function(p, callback){
+    return stats.statsTreeBySuperCampaign(p.from, p.to, p.visits, p.superCampaign, p.ref, callback);
   });
   http.createServer(app).listen(app.get('port'), function(_){
     return console.log("express started at port " + app.get('port'));

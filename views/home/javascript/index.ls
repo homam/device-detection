@@ -100,10 +100,12 @@ $ ->
 	re-root = ->
 		#r <- $.get "data/ae.json"
 
+		val = (cssSelector) -> $(cssSelector).val() || '0'
+
 		url = if !$('#chosen-tests').val() or parseInt($('#chosen-tests').val()) == 0 then
-			"/api/stats/tree/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}/#{$('#chosen-refs').val()}/0"
+			"/api/stats/tree/#{val('#fromDate')}/#{val('#toDate')}/#{val('#chosen-countries')}/#{val('#chosen-refs')}/0"
 		else
-			"/api/test/tree/#{$('#chosen-tests').val()}/#{$('#fromDate').val()}/#{$('#toDate').val()}/#{$('#chosen-countries').val()}/#{$('#chosen-refs').val()}/0"
+			"/api/test/tree/#{val('#chosen-tests')}/#{val('#fromDate')}/#{val('#toDate')}/#{val('#chosen-countries')}/#{val('#chosen-refs')}"
 
 		#url = "data/ae.json"
 		console.log '*** ', url
@@ -115,7 +117,7 @@ $ ->
 	# header
 	d3.select('#chosen-methods').selectAll('option').data(listOfSubscriptioMethods)
 	.enter().append('option').text(-> it.name)
-	$('#chosen-methods').chosen().change(->update-tree-from-ui())
+	$('#chosen-methods').select2({width: 'element'}).change(->update-tree-from-ui())
 
 	$('#chosen-methods-orand').change ->
 		$('#kill-children-threshold').val(if $(this).is(':checked') then 100 else 0)
@@ -123,23 +125,30 @@ $ ->
 
 	$('#kill-children-threshold').change(->update-tree-from-ui!)
 
+	# callback :: ($jQuerySelect) -> void
+	populate-chosen-select = (cssSelector, url, mapFunc, defaultValue, callback) ->
+		data <- $.get url
+		data  = mapFunc data
+		d3.select(cssSelector).selectAll('option').data(data)
+		.enter().append('option').attr("value", -> it.id).text(-> it.name)
+		$select = $(cssSelector).val(defaultValue) 
+		$select.select2({width: 'element', allowClear: true}).change(->re-root())
+		callback $select
+
+
 	
-	countries <- $.get 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries'
-	d3.select('#chosen-countries').selectAll('option').data([{id: 0, name: ''}] ++ countries)
-	.enter().append('option').attr("value", -> it.id).text(-> it.name)
-	$('#chosen-countries').val(2) # select uae as the intial country TODO: get it from query string
-	$('#chosen-countries').chosen({allow_single_deselect: true}).change(->re-root())
+	_ <- populate-chosen-select('#chosen-countries', 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', 
+		((countries) -> [{}] ++ countries), 2) # select uae as the intial country TODO: get it from query string
 
+	_ <- populate-chosen-select('#chosen-refs', 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs',
+		((refs)-> refs[0] = {}; refs), 0) # TODO: get default ref from QueryString
 
-	refs <- $.get 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs'
-	$select = d3.select('#chosen-refs')
-	refs[0] = {name: '', id: 0}
-	$select.selectAll('option').data(refs)
-	.enter().append('option').attr("value", -> it.id).text(-> it.name)
-	$('#chosen-refs').val(0) # select uae as the intial country TODO: get it from query string
-	$('#chosen-refs').chosen({allow_single_deselect: true}).change(->re-root())
+	_ <- populate-chosen-select('#chosen-superCampaigns', 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetSuperCampaigns',
+		((superCampaigns)->  [{}] ++ (filter (-> it.name.indexOf('[') != 0), superCampaigns)), 0) # TODO: get default ref from QueryString
 
-
+	do ->
+		_ <- populate-chosen-select('#chosen-tests', '/api/tests/true',
+			((tests)->  [{}] ++ [{id: t.id, name: "#{t.device} (#{t.id})"} for t in tests]), 0)
 
 
 	now = new Date()
@@ -151,14 +160,8 @@ $ ->
 	.val(format-date new Date(now.valueOf()-1*24*60*60*1000))
 	.change(->re-root())
 
-	$('#chosen-tree-ui-type').chosen().change(-> change-tree-ui $(this).val())
+	$('#chosen-tree-ui-type').select2().change(-> change-tree-ui $(this).val())
 
-	do ->
-		tests <- $.get "/api/tests/true"
-		d3.select('#chosen-tests').selectAll('option').data([{device: '', id: 0}] ++ tests)
-		.enter().append('option').attr('value', -> it.id).text(-> if it.id==0 then '' else "#{it.device} (#{it.id})")
-
-		$('#chosen-tests').chosen({allow_single_deselect:true}).change(->re-root!)
 
 
 

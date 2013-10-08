@@ -15,6 +15,15 @@ header input[type=text] {
   padding: 5px;
   height: 15px;
 }
+header #chosen-tests {
+  width: 160px;
+}
+header #chosen-superCampaigns {
+  width: 210px;
+}
+header #chosen-refs {
+  width: 120px;
+}
 header #chosen-methods {
   width: 400px;
 }

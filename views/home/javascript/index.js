@@ -139,7 +139,7 @@
     });
   });
   $(function(){
-    var root, changeTreeUi, updateTreeFromUi, reRoot;
+    var root, changeTreeUi, updateTreeFromUi, reRoot, populateChosenSelect;
     root = null;
     changeTreeUi = function(type){
       $(".tree").html('');
@@ -190,10 +190,13 @@
       return treeChart.updateTree(hardClone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val()));
     };
     reRoot = function(){
-      var url;
+      var val, url;
+      val = function(cssSelector){
+        return $(cssSelector).val() || '0';
+      };
       url = !$('#chosen-tests').val() || parseInt($('#chosen-tests').val()) === 0
-        ? "/api/stats/tree/" + $('#fromDate').val() + "/" + $('#toDate').val() + "/" + $('#chosen-countries').val() + "/" + $('#chosen-refs').val() + "/0"
-        : "/api/test/tree/" + $('#chosen-tests').val() + "/" + $('#fromDate').val() + "/" + $('#toDate').val() + "/" + $('#chosen-countries').val() + "/" + $('#chosen-refs').val() + "/0";
+        ? "/api/stats/tree/" + val('#fromDate') + "/" + val('#toDate') + "/" + val('#chosen-countries') + "/" + val('#chosen-refs') + "/0"
+        : "/api/test/tree/" + val('#chosen-tests') + "/" + val('#fromDate') + "/" + val('#toDate') + "/" + val('#chosen-countries') + "/" + val('#chosen-refs');
       console.log('*** ', url);
       return $.get(url, function(r){
         root = r;
@@ -203,7 +206,9 @@
     d3.select('#chosen-methods').selectAll('option').data(listOfSubscriptioMethods).enter().append('option').text(function(it){
       return it.name;
     });
-    $('#chosen-methods').chosen().change(function(){
+    $('#chosen-methods').select2({
+      width: 'element'
+    }).change(function(){
       return updateTreeFromUi();
     });
     $('#chosen-methods-orand').change(function(){
@@ -213,71 +218,66 @@
     $('#kill-children-threshold').change(function(){
       return updateTreeFromUi();
     });
-    return $.get('http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', function(countries){
-      d3.select('#chosen-countries').selectAll('option').data([{
-        id: 0,
-        name: ''
-      }].concat(countries)).enter().append('option').attr("value", function(it){
-        return it.id;
-      }).text(function(it){
-        return it.name;
-      });
-      $('#chosen-countries').val(2);
-      $('#chosen-countries').chosen({
-        allow_single_deselect: true
-      }).change(function(){
-        return reRoot();
-      });
-      return $.get('http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs', function(refs){
-        var $select, now;
-        $select = d3.select('#chosen-refs');
-        refs[0] = {
-          name: '',
-          id: 0
-        };
-        $select.selectAll('option').data(refs).enter().append('option').attr("value", function(it){
+    populateChosenSelect = function(cssSelector, url, mapFunc, defaultValue, callback){
+      return $.get(url, function(data){
+        var $select;
+        data = mapFunc(data);
+        d3.select(cssSelector).selectAll('option').data(data).enter().append('option').attr("value", function(it){
           return it.id;
         }).text(function(it){
           return it.name;
         });
-        $('#chosen-refs').val(0);
-        $('#chosen-refs').chosen({
-          allow_single_deselect: true
+        $select = $(cssSelector).val(defaultValue);
+        $select.select2({
+          width: 'element',
+          allowClear: true
         }).change(function(){
           return reRoot();
         });
-        now = new Date();
-        $('#fromDate').attr("max", formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).val(formatDate(new Date(now.valueOf() - 2 * 24 * 60 * 60 * 1000))).change(function(){
-          return reRoot();
-        });
-        $('#toDate').attr("max", formatDate(now)).val(formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).change(function(){
-          return reRoot();
-        });
-        $('#chosen-tree-ui-type').chosen().change(function(){
-          return changeTreeUi($(this).val());
-        });
-        (function(){
-          return $.get("/api/tests/true", function(tests){
-            d3.select('#chosen-tests').selectAll('option').data([{
-              device: '',
-              id: 0
-            }].concat(tests)).enter().append('option').attr('value', function(it){
-              return it.id;
-            }).text(function(it){
-              if (it.id === 0) {
-                return '';
-              } else {
-                return it.device + " (" + it.id + ")";
-              }
-            });
-            return $('#chosen-tests').chosen({
-              allow_single_deselect: true
-            }).change(function(){
-              return reRoot();
-            });
+        return callback($select);
+      });
+    };
+    return populateChosenSelect('#chosen-countries', 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', function(countries){
+      return [{}].concat(countries);
+    }, 2, function(_){
+      return populateChosenSelect('#chosen-refs', 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs', function(refs){
+        refs[0] = {};
+        return refs;
+      }, 0, function(_){
+        return populateChosenSelect('#chosen-superCampaigns', 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetSuperCampaigns', function(superCampaigns){
+          return [{}].concat(filter(function(it){
+            return it.name.indexOf('[') !== 0;
+          }, superCampaigns));
+        }, 0, function(_){
+          var now;
+          (function(){
+            return populateChosenSelect('#chosen-tests', '/api/tests/true', function(tests){
+              var t;
+              return [{}].concat((function(){
+                var i$, ref$, len$, results$ = [];
+                for (i$ = 0, len$ = (ref$ = tests).length; i$ < len$; ++i$) {
+                  t = ref$[i$];
+                  results$.push({
+                    id: t.id,
+                    name: t.device + " (" + t.id + ")"
+                  });
+                }
+                return results$;
+              }()));
+            }, 0, function(_){});
+          })();
+          now = new Date();
+          $('#fromDate').attr("max", formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).val(formatDate(new Date(now.valueOf() - 2 * 24 * 60 * 60 * 1000))).change(function(){
+            return reRoot();
           });
-        })();
-        return reRoot();
+          $('#toDate').attr("max", formatDate(now)).val(formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).change(function(){
+            return reRoot();
+          });
+          $('#chosen-tree-ui-type').select2().change(function(){
+            return changeTreeUi($(this).val());
+          });
+          return reRoot();
+        });
       });
     });
   });

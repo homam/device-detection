@@ -16,6 +16,12 @@ get-stats = (from, to, visits, country, ref, callback) -->
 	obj <- request-json url
 	callback lower-case-data obj
 
+get-stats-by-superCampaign = (from, to, visits, superCampaign, ref, callback) -->
+	url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetStats?start_date=#{from}&end_date=#{to}&supercamp_id=#{superCampaign}&visits=#{visits}&ref_id=#{ref}" 
+	console.log "api << ", url
+	obj <- request-json url
+	callback lower-case-data obj
+
 get-test-stats = (testid, from, to, country, callback) -->
 	url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetTestStats?test_id=#{testid}&start_date=#{from}&end_date=#{to}&country_id=#{country}&visits=0"
 	console.log "api << ", url
@@ -30,6 +36,10 @@ exports.get-stats = get-stats
 
 exports.stats-tree = (fromDate, toDate, visits = 0, country = 0, ref = 0, callback) ->
 	data <- (get-stats fromDate, toDate, visits, country, ref)
+	callback <| treefy data
+
+exports.stats-tree-by-superCampaign = (fromDate, toDate, visits = 0, superCampaign = 0, ref = 0, callback) ->
+	data <- (get-stats-by-superCampaign fromDate, toDate, visits, superCampaign, ref)
 	callback <| treefy data
 
 exports.stats-summary = (fromDate, toDate, visits = 0, country = 0, ref = 0, callback) ->
