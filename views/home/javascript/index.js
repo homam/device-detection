@@ -155,7 +155,7 @@
     });
   });
   $(function(){
-    var root, changeTreeUi, updateTreeFromUi, val, reRoot, lastReRootFunc, reRootCountry, reRootSuperCampaign, reRootAgain, populateChosenSelect;
+    var root, changeTreeUi, updateTreeFromUi, val, reRoot, reRootAgain, reRootCountry, reRootSuperCampaign, populateChosenSelect;
     root = null;
     changeTreeUi = function(type){
       $(".tree").html('');
@@ -220,27 +220,35 @@
       return $(cssSelector).val() || '0';
     };
     reRoot = function(url){
+      $('#loading').show();
+      setTimeout(function(){
+        return $('#loading').addClass('visible');
+      }, 500);
       console.log('*** ', url);
       return $.get(url, function(r){
         root = r;
-        return updateTreeFromUi();
+        updateTreeFromUi();
+        $('#loading').removeClass('visible');
+        return setTimeout(function(){
+          return $('#loading').hide();
+        }, 500);
       });
     };
-    lastReRootFunc = null;
+    reRootAgain = null;
     reRootCountry = function(){
       var url;
       $('#chosen-superCampaigns').select2('val', '');
       url = !$('#chosen-tests').val() || parseInt($('#chosen-tests').val()) === 0
         ? "/api/stats/tree/" + val('#fromDate') + "/" + val('#toDate') + "/" + val('#chosen-countries') + "/" + val('#chosen-refs') + "/0"
         : "/api/test/tree/" + val('#chosen-tests') + "/" + val('#fromDate') + "/" + val('#toDate') + "/" + val('#chosen-countries') + "/" + val('#chosen-refs');
-      lastReRootFunc = reRootCountry;
+      reRootAgain = reRootCountry;
       return reRoot(url);
     };
     reRootSuperCampaign = function(){
       var url;
       $('#chosen-countries, #chosen-refs, #chosen-tests').select2('val', '');
       url = "/api/stats/tree-by-superCampaign/" + val('#fromDate') + "/" + val('#toDate') + "/" + val('#chosen-superCampaigns') + "/" + val('#chosen-refs') + "/0";
-      lastReRootFunc = reRootSuperCampaign;
+      reRootAgain = reRootSuperCampaign;
       return reRoot(url);
     };
     reRootAgain = reRootCountry;
@@ -315,10 +323,10 @@
       })();
       now = new Date();
       $('#fromDate').attr("max", formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).val(formatDate(new Date(now.valueOf() - 2 * 24 * 60 * 60 * 1000))).change(function(){
-        return reRoot();
+        return reRootAgain();
       });
       $('#toDate').attr("max", formatDate(now)).val(formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).change(function(){
-        return reRoot();
+        return reRootAgain();
       });
       $('#chosen-tree-ui-type').select2().change(function(){
         return changeTreeUi($(this).val());

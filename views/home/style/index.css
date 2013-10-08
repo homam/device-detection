@@ -33,6 +33,30 @@ header #chosen-tree-ui-type {
 header #kill-children-threshold {
   width: 60px;
 }
+#loading {
+  position: fixed;
+  top: 60px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  background-color: rgba(0,0,0,0.8);
+  color: rgba(255,255,255,0.8);
+  font-size: 100px;
+  -webkit-transition: 0.5s;
+  -moz-transition: 0.5s;
+  -o-transition: 0.5s;
+  -ms-transition: 0.5s;
+  transition: 0.5s;
+}
+#loading.visible {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
 .tree {
   position: fixed;
   top: 60px;

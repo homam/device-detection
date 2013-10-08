@@ -132,13 +132,17 @@ $ ->
 	val = (cssSelector) -> $(cssSelector).val() || '0'
 
 	re-root = (url) -->
+		$('#loading').show()
+		setTimeout (-> $('#loading').addClass('visible')), 500
 		#url = "data/ae.json"
 		console.log '*** ', url
 		r <- $.get url
 		root := r
 		update-tree-from-ui!
+		$('#loading').removeClass('visible')
+		setTimeout (-> $('#loading').hide()), 500
 
-	last-re-root-func = null
+	re-root-again = null
 
 	re-root-country = ->
 		$('#chosen-superCampaigns').select2('val', '')
@@ -148,7 +152,7 @@ $ ->
 		else
 			"/api/test/tree/#{val('#chosen-tests')}/#{val('#fromDate')}/#{val('#toDate')}/#{val('#chosen-countries')}/#{val('#chosen-refs')}"
 
-		last-re-root-func := re-root-country
+		re-root-again := re-root-country
 		re-root url
 
 	re-root-superCampaign = ->
@@ -156,7 +160,7 @@ $ ->
 
 		url = "/api/stats/tree-by-superCampaign/#{val('#fromDate')}/#{val('#toDate')}/#{val('#chosen-superCampaigns')}/#{val('#chosen-refs')}/0"
 
-		last-re-root-func := re-root-superCampaign
+		re-root-again := re-root-superCampaign
 		re-root url
 
 	re-root-again = re-root-country	
@@ -202,11 +206,11 @@ $ ->
 	now = new Date()
 	$('#fromDate').attr("max", format-date new Date(now.valueOf()-1*24*60*60*1000))
 	.val(format-date new Date(now.valueOf()-2*24*60*60*1000))
-	.change(->re-root())
+	.change(->re-root-again!)
 
 	$('#toDate').attr("max", format-date now)
 	.val(format-date new Date(now.valueOf()-1*24*60*60*1000))
-	.change(->re-root())
+	.change(->re-root-again!)
 
 	$('#chosen-tree-ui-type').select2().change(-> change-tree-ui $(this).val())
 
