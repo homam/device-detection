@@ -132,7 +132,7 @@ exports.tree-map = (width = 1000, height = 1000) ->
 		transition($cell).attr("transform", (d) ->"translate(" + d.x + "," + d.y + ")")
 		
 		$cellEnter.append("rect").on('mousedown', -> $render-node-methods-stats it) # enter
-		transition($cell.select('rect')).attr("width", (d) -> d.dx).attr("height", (d) -> d.dy)
+		transition($cell.select('rect').attr('class', -> "node-#{it.treeId}")).attr("width", (d) -> d.dx).attr("height", (d) -> d.dy)
 		.style("fill", -> if it.children and it.children.length > 0 then 'none' else color selected-stats(it)[2]) # update
 
 		$cellEnter.append("text").on('mousedown', -> $render-node-methods-stats it) # enter

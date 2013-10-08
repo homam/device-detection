@@ -68,6 +68,14 @@ rect {
   fill: none;
   stroke: #fff;
 }
+rect.selected {
+  -webkit-transition: outline 0.5s;
+  -moz-transition: outline 0.5s;
+  -o-transition: outline 0.5s;
+  -ms-transition: outline 0.5s;
+  transition: outline 0.5s;
+  outline: solid 6px #000;
+}
 footer .summary {
   clear: both;
 }
@@ -75,12 +83,27 @@ footer .summary h2 {
   display: inline-block;
   margin: 0;
   padding: 0;
-  width: 50%;
+  width: 75%;
   font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   -o-text-overflow: ellipsis;
   text-overflow: ellipsis;
+}
+footer .summary h2 a {
+  text-decoration: none;
+  cursor: pointer;
+}
+footer .summary h2 a:hover {
+  text-decoration: underline;
+}
+footer .summary h2 a:first-child:before {
+  padding: 0;
+  content: '';
+}
+footer .summary h2 a:before {
+  padding: 0 4px;
+  content: '/';
 }
 footer .summary .all-methods-summary {
   display: inline-block;

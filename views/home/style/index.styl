@@ -57,6 +57,9 @@ footer
 rect
 	fill: none;
 	stroke: #fff;
+	&.selected
+		transition: outline 0.5s
+		outline: solid 6px black
 
 
 
@@ -75,9 +78,20 @@ footer
 		h2
 			display: inline-block
 			margin:0; padding:0;
-			width: 50%
+			width: 75%
 			font-size: 14px
 			overflow: ellipsis
+			a
+				text-decoration: none
+				cursor: pointer
+				&:hover
+					text-decoration: underline
+				&:first-child:before
+					padding: 0
+					content: ''
+				&:before
+					padding: 0 4px
+					content: '/'
 		.all-methods-summary
 			display: inline-block
 			values-container()

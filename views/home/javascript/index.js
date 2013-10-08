@@ -80,19 +80,9 @@
   };
   treeChart = treeMap(screen.width - 10, 1000);
   $(function(){
-    return $(window).on("tree/node-selected", function(ref$, node){
-      var name, v, allMethodsSummary, $summarySpan, $li, $liEnter, renderMethodStats;
-      name = join(' - ', (function(){
-        var i$, ref$, len$, results$ = [];
-        for (i$ = 0, len$ = (ref$ = [node.os, node.brand, node.model]).length; i$ < len$; ++i$) {
-          v = ref$[i$];
-          if (!!v) {
-            results$.push(v);
-          }
-        }
-        return results$;
-      }()));
-      $('.stats h2').text((name + " : '") + sor(sor(sor(node.device, node.brand), node.os), '') + "'");
+    var updateStatsAtFooter;
+    updateStatsAtFooter = function(node){
+      var allMethodsSummary, $summarySpan, $li, $liEnter, renderMethodStats;
       allMethodsSummary = fold(function(acc, a){
         return {
           visits: a.visits + acc.visits,
@@ -130,16 +120,42 @@
           : m.subscribers / m.visits);
       });
       return $li.transition().duration(200).style("opacity", function(it){
-        if (it.visits < allMethodsSummary.visits * 0.1) {
-          return 0.5;
-        } else {
-          return 1;
+        var ratio;
+        ratio = it.visits / allMethodsSummary.visits;
+        return d3.scale.linear().domain([0, 0.33]).range([0.2, 1]).clamp(true)(ratio);
+      });
+    };
+    return $(window).on("tree/node-selected", function(ref$, node){
+      var nameNode, allParents, selectNode, names, $a;
+      nameNode = function(n){
+        return sor(sor(sor(n.device, n.brand), n.os), '');
+      };
+      allParents = function(n, list){
+        switch (false) {
+        case !!n.parent:
+          return [n].concat(list);
+        default:
+          return allParents(n.parent, list).concat([n], list);
         }
+      };
+      selectNode = function(n){
+        console.log('select-node', n.treeId);
+        d3.selectAll('rect.selected').classed('selected', false);
+        d3.select(".node-" + n.treeId).classed('selected', true);
+        return updateStatsAtFooter(n);
+      };
+      selectNode(node);
+      $('.stats h2').html('');
+      names = allParents(node, []);
+      return $a = d3.select('.stats h2').selectAll('a').data(names).enter().append('a').text(function(it){
+        return nameNode(it);
+      }).on('click', function(it){
+        return selectNode(it);
       });
     });
   });
   $(function(){
-    var root, changeTreeUi, updateTreeFromUi, val, reRoot, lastReRootFunc, reRootCountry, reRootSuperCampaign, populateChosenSelect;
+    var root, changeTreeUi, updateTreeFromUi, val, reRoot, lastReRootFunc, reRootCountry, reRootSuperCampaign, reRootAgain, populateChosenSelect;
     root = null;
     changeTreeUi = function(type){
       $(".tree").html('');
@@ -147,11 +163,22 @@
       return updateTreeFromUi();
     };
     updateTreeFromUi = function(){
-      var findMethod, calcConv, stndDevOfConversionForMethod, id, name;
+      var lastId, addIdToNode, findMethod, calcConv, stndDevOfConversionForMethod, id, name;
       if (!root.stats) {
         console.log('nothing!');
         return;
       }
+      lastId = 0;
+      addIdToNode = function(n){
+        switch (false) {
+        case !(!n.children || n.children.length === 0):
+          return n.treeId = ++lastId;
+        default:
+          n.treeId = ++lastId;
+          return each(addIdToNode, n.children);
+        }
+      };
+      addIdToNode(root);
       findMethod = function(name, stats){
         return find(function(it){
           return it.method === name;
@@ -216,7 +243,7 @@
       lastReRootFunc = reRootSuperCampaign;
       return reRoot(url);
     };
-    lastReRootFunc = reRootCountry;
+    reRootAgain = reRootCountry;
     d3.select('#chosen-methods').selectAll('option').data(listOfSubscriptioMethods).enter().append('option').text(function(it){
       return it.name;
     });
@@ -252,23 +279,23 @@
     }), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', function(countries){
       return [{}].concat(countries);
     }, 2, function(_){
-      return populateChosenSelect($('#chosen-refs').on('change', function(){
-        return lastReRootFunc();
-      }), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs', function(refs){
-        refs[0] = {};
-        return refs;
-      }, '', function(_){
-        return populateChosenSelect($('#chosen-superCampaigns').on('change', function(){
-          return reRootSuperCampaign();
-        }), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetSuperCampaigns', function(superCampaigns){
-          return [{}].concat(filter(function(it){
-            return it.name.indexOf('[') !== 0;
-          }, superCampaigns));
+      var now;
+      (function(){
+        return populateChosenSelect($('#chosen-refs').on('change', function(){
+          return reRootAgain();
+        }), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs', function(refs){
+          refs[0] = {};
+          return refs;
         }, '', function(_){
-          var now;
-          (function(){
+          return populateChosenSelect($('#chosen-superCampaigns').on('change', function(){
+            return reRootSuperCampaign();
+          }), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetSuperCampaigns', function(superCampaigns){
+            return [{}].concat(filter(function(it){
+              return it.name.indexOf('[') !== 0;
+            }, superCampaigns));
+          }, '', function(_){
             return populateChosenSelect($('#chosen-tests').on('change', function(){
-              return lastReRootFunc();
+              return reRootAgain();
             }), '/api/tests/true', function(tests){
               var t;
               return [{}].concat((function(){
@@ -283,20 +310,20 @@
                 return results$;
               }()));
             }, '', function(_){});
-          })();
-          now = new Date();
-          $('#fromDate').attr("max", formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).val(formatDate(new Date(now.valueOf() - 2 * 24 * 60 * 60 * 1000))).change(function(){
-            return reRoot();
           });
-          $('#toDate').attr("max", formatDate(now)).val(formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).change(function(){
-            return reRoot();
-          });
-          $('#chosen-tree-ui-type').select2().change(function(){
-            return changeTreeUi($(this).val());
-          });
-          return lastReRootFunc();
         });
+      })();
+      now = new Date();
+      $('#fromDate').attr("max", formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).val(formatDate(new Date(now.valueOf() - 2 * 24 * 60 * 60 * 1000))).change(function(){
+        return reRoot();
       });
+      $('#toDate').attr("max", formatDate(now)).val(formatDate(new Date(now.valueOf() - 1 * 24 * 60 * 60 * 1000))).change(function(){
+        return reRoot();
+      });
+      $('#chosen-tree-ui-type').select2().change(function(){
+        return changeTreeUi($(this).val());
+      });
+      return reRootAgain();
     });
   });
 }).call(this);

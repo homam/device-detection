@@ -157,7 +157,9 @@
       $cellEnter.append("rect").on('mousedown', function(it){
         return $renderNodeMethodsStats(it);
       });
-      transition($cell.select('rect')).attr("width", function(d){
+      transition($cell.select('rect').attr('class', function(it){
+        return "node-" + it.treeId;
+      })).attr("width", function(d){
         return d.dx;
       }).attr("height", function(d){
         return d.dy;

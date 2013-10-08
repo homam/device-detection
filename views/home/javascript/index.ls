@@ -30,12 +30,7 @@ treeChart = tree-map(screen.width-10,1000) #tree-map(1300,500) # tree-long-branc
 
 
 $ ->
-	# node clicked
-	$(window).on "tree/node-selected", (.., node)->
-		#vTotal = sum-visits (->true), node
-		#[vSelected, sSelected, cSelected]  = selected-stats node
-		name = join ' - ', [v for v in [node.os, node.brand, node.model] when !!v]
-		$('.stats h2').text("#{name} : '" + (node.device `sor` node.brand `sor` node.os `sor` '') + "'")
+	update-stats-at-footer = (node) ->
 
 		allMethodsSummary = fold ((acc, a) -> {visits: a.visits+acc.visits, subscribers: a.subscribers+acc.subscribers}), {visits: 0, subscribers: 0}, node.stats
 		allMethodsSummary.conversion = allMethodsSummary.subscribers/allMethodsSummary.visits
@@ -53,8 +48,37 @@ $ ->
 			$li.select("span.#{className}").text(text)
 		each (-> render-method-stats it, (m) -> m[it]), ['method', 'visits', 'subscribers']
 		render-method-stats 'conversion', (m) -> d3.format('.1%')(if m.visits == 0 then 0 else (m.subscribers / m.visits))
-		$li.transition().duration(200).style("opacity", (-> if it.visits < (allMethodsSummary.visits * 0.1) then 0.5 else 1))
+		$li.transition().duration(200).style("opacity", (-> 
+			ratio = it.visits / allMethodsSummary.visits
+			d3.scale.linear().domain([0,0.33]).range([0.2,1]).clamp(true)(ratio)
+		))
+			#if it.visits < (allMethodsSummary.visits * 0.1) then 0.5 else 1))
 
+
+	#  event handler: node clicked
+	$(window).on "tree/node-selected", (.., node)->
+		#vTotal = sum-visits (->true), node
+		#[vSelected, sSelected, cSelected]  = selected-stats node
+		name-node = (n) -> n.device `sor` n.brand `sor` n.os `sor` ''
+
+		all-parents = (n, list) ->
+			| !n.parent => [n] ++ list
+			| otherwise => all-parents(n.parent, list) ++ [n] ++ list
+
+
+		select-node = (n) ->
+			console.log 'select-node', n.treeId
+			d3.selectAll('rect.selected').classed('selected', false) # deselect currently selected one
+			d3.select(".node-#{n.treeId}").classed('selected', true)
+			update-stats-at-footer n
+
+
+		select-node node
+
+		$('.stats h2').html('')
+		names = (all-parents node, []) #map (->{id: it.treeId, name: name-node(it)}), (all-parents node, [])
+		$a = d3.select('.stats h2').selectAll('a').data(names)
+		.enter().append('a').text(->name-node(it)).on('click', -> select-node it)
 $ ->
 	root = null
 
@@ -69,6 +93,14 @@ $ ->
 			#$(".tree").html('Nothing!')
 			console.log 'nothing!'
 			return
+
+		lastId = 0
+		add-id-to-node = (n) ->
+			| !n.children or n.children.length == 0 => n.treeId = ++lastId
+			| otherwise => n.treeId = ++lastId; each (add-id-to-node), n.children
+
+		add-id-to-node root
+
 
 		find-method = (name, stats) ->
 			(find (-> it.method == name), stats) or {visits: 0, subscribers: 0}
@@ -100,7 +132,6 @@ $ ->
 	val = (cssSelector) -> $(cssSelector).val() || '0'
 
 	re-root = (url) -->
-
 		#url = "data/ae.json"
 		console.log '*** ', url
 		r <- $.get url
@@ -128,7 +159,7 @@ $ ->
 		last-re-root-func := re-root-superCampaign
 		re-root url
 
-	last-re-root-func = re-root-country	
+	re-root-again = re-root-country	
 
 
 	# header
@@ -156,15 +187,15 @@ $ ->
 	_ <- populate-chosen-select($('#chosen-countries').on('change', -> re-root-country!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', 
 		((countries) -> [{}] ++ countries), 2) # select uae as the intial country TODO: get it from query string
 
-	_ <- populate-chosen-select($('#chosen-refs').on('change', -> last-re-root-func!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs',
-		((refs)-> refs[0] = {}; refs), '') # TODO: get default ref from QueryString
-
-	_ <- populate-chosen-select($('#chosen-superCampaigns').on('change', -> re-root-superCampaign!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetSuperCampaigns',
-		((superCampaigns)->  [{}] ++ (filter (-> it.name.indexOf('[') != 0), superCampaigns)), '') # TODO: get default ref from QueryString
-
-
 	do ->
-		_ <- populate-chosen-select($('#chosen-tests').on('change', -> last-re-root-func!), '/api/tests/true',
+		_ <- populate-chosen-select($('#chosen-refs').on('change', -> re-root-again!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs',
+			((refs)-> refs[0] = {}; refs), '') # TODO: get default ref from QueryString
+
+		_ <- populate-chosen-select($('#chosen-superCampaigns').on('change', -> re-root-superCampaign!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetSuperCampaigns',
+			((superCampaigns)->  [{}] ++ (filter (-> it.name.indexOf('[') != 0), superCampaigns)), '') # TODO: get default ref from QueryString
+
+
+		_ <- populate-chosen-select($('#chosen-tests').on('change', -> re-root-again!), '/api/tests/true',
 			((tests)->  [{}] ++ [{id: t.id, name: "#{t.device} (#{t.id})"} for t in tests]), '')
 
 
@@ -182,7 +213,7 @@ $ ->
 
 
 
-	last-re-root-func!
+	re-root-again!
 
 
 
