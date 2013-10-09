@@ -136,7 +136,7 @@ $ ->
 		setTimeout (-> $('#loading').addClass('visible')), 500
 		#url = "data/ae.json"
 		console.log '*** ', url
-		r <- $.get url, {headers:{"Cache-Control": "no-cache"}}
+		r <- $.ajax url
 		root := r
 		update-tree-from-ui!
 		$('#loading').removeClass('visible')

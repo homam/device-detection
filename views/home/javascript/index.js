@@ -225,11 +225,7 @@
         return $('#loading').addClass('visible');
       }, 500);
       console.log('*** ', url);
-      return $.get(url, {
-        headers: {
-          "Cache-Control": "no-cache"
-        }
-      }, function(r){
+      return $.ajax(url, function(r){
         root = r;
         updateTreeFromUi();
         $('#loading').removeClass('visible');
