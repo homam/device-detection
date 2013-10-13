@@ -66,6 +66,31 @@ header #kill-children-threshold {
   overflow: auto;
   z-index: 1;
 }
+.tree .node circle {
+  fill: #fff;
+  stroke: #4682b4;
+  stroke-width: 1.5px;
+}
+.tree .node {
+  font-size: 10px;
+}
+.tree .link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+.tree rect {
+  fill: none;
+  stroke: #fff;
+}
+.tree rect.selected {
+  -webkit-transition: outline 0.5s;
+  -moz-transition: outline 0.5s;
+  -o-transition: outline 0.5s;
+  -ms-transition: outline 0.5s;
+  transition: outline 0.5s;
+  outline: solid 6px #000;
+}
 footer {
   position: fixed;
   right: 0;
@@ -74,31 +99,6 @@ footer {
   height: 70px;
   overflow: auto;
   background-color: #c0c0c0;
-}
-.node circle {
-  fill: #fff;
-  stroke: #4682b4;
-  stroke-width: 1.5px;
-}
-.node {
-  font-size: 10px;
-}
-.link {
-  fill: none;
-  stroke: #ccc;
-  stroke-width: 1.5px;
-}
-rect {
-  fill: none;
-  stroke: #fff;
-}
-rect.selected {
-  -webkit-transition: outline 0.5s;
-  -moz-transition: outline 0.5s;
-  -o-transition: outline 0.5s;
-  -ms-transition: outline 0.5s;
-  transition: outline 0.5s;
-  outline: solid 6px #000;
 }
 footer .summary {
   clear: both;
@@ -142,6 +142,9 @@ footer .summary .all-methods-summary > span {
   text-overflow: ellipsis;
   width: 40px;
 }
+footer .summary .all-methods-summary > span.visits {
+  background: #ff0;
+}
 footer ul.node-methods-stats {
   margin: 3px 0 0 0;
   padding: 0;
@@ -163,7 +166,15 @@ footer ul.node-methods-stats > li > span {
   text-overflow: ellipsis;
   width: 40px;
 }
+footer ul.node-methods-stats > li > span.visits {
+  background: #ff0;
+}
 footer ul.node-methods-stats > li > span.method {
   font-weight: bold;
   width: 50px;
+}
+footer ul.node-methods-stats > li > span.visits {
+  border: solid 2px #f00;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
 }

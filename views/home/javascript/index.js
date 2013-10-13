@@ -224,6 +224,7 @@
       setTimeout(function(){
         return $('#loading').addClass('visible');
       }, 500);
+      url = "data/ae.json";
       console.log('*** ', url);
       return $.get(url, function(r){
         root = r;

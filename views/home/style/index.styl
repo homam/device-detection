@@ -1,7 +1,7 @@
 @import 'nib'
 
 body
-	font: 12px sans-serif;
+	font: 12px sans-serif
 
 header
 	position: fixed
@@ -30,7 +30,6 @@ header
 	position: fixed
 	top: 60px; bottom: 0; left: 0; right: 0;
 	z-index: 3
-	//display: none
 	opacity: 0
 	background-color: rgba(0,0,0,.8)
 	color: rgba(255,255,255,.8)
@@ -38,7 +37,8 @@ header
 	transition .5s
 	&.visible
 		opacity: 1
-		//display: block
+
+
 
 
 .tree
@@ -47,39 +47,38 @@ header
 	overflow: auto
 	z-index: 1
 
+	.node circle
+		fill: #fff;
+		stroke: steelblue;
+		stroke-width: 1.5px;
+
+	.node
+		font-size: 10px;
+
+	.link
+		fill: none;
+		stroke: #ccc;
+		stroke-width: 1.5px;
+
+
+	// treemap
+	rect
+		fill: none;
+		stroke: #fff;
+		&.selected
+			transition: outline 0.5s
+			outline: solid 6px black
+
+
+
+
+
 footer
 	position: fixed
 	right: 0; left: 0; bottom: 0;
 	height: 70px
 	overflow: auto
 	background-color: silver
-
-
-.node circle
-	fill: #fff;
-	stroke: steelblue;
-	stroke-width: 1.5px;
-
-.node
-	font-size: 10px;
-
-.link
-	fill: none;
-	stroke: #ccc;
-	stroke-width: 1.5px;
-
-
-// treemap
-rect
-	fill: none;
-	stroke: #fff;
-	&.selected
-		transition: outline 0.5s
-		outline: solid 6px black
-
-
-
-footer 
 	values-container()
 		outline: solid 1px gray
 	value-field()
@@ -87,6 +86,8 @@ footer
 		margin: 0 .2em 0 .2em;
 		overflow: ellipsis
 		width: 40px
+		&.visits
+			background: yellow
 
 	.summary
 	
@@ -124,6 +125,9 @@ footer
 			values-container()
 			> span
 				value-field()
-				&.method 
+				&.method
 					font-weight: bold
 					width: 50px
+				&.visits
+					border: solid 2px red
+					border-radius: 10px
