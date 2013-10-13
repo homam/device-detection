@@ -134,7 +134,7 @@ $ ->
 	re-root = (url) -->
 		$('#loading').show()
 		setTimeout (-> $('#loading').addClass('visible')), 500
-		url = "data/ae.json"
+		#url = "data/ae.json"
 		console.log '*** ', url
 		r <- $.get url
 		root := r

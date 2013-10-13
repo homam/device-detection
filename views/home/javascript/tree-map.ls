@@ -118,8 +118,8 @@ exports.tree-map = (width = 1000, height = 1000) ->
 			), root # and
 
 
-		color = d3.scale.quantile().range ['#f21b1b', '#ed771c', '#e9ce1e', '#a9e41f', '#53df21', '#22da40', '#23d58e', '#24cbd0', '#257ecb', '#2636c7']
-		color.domain([0, convAverageSelected+2*convStnDevSelected])
+		color = d3.scale.quantile().range ['#d94f34', '#d69838', '#cdd43c', '#8ad240', '#4dd044', '#48cd7a', '#4ccbb4', '#4fa9c9', '#5375c6', '#6656c4']
+		color.domain([0, convAverageSelected])
 
 		
 
