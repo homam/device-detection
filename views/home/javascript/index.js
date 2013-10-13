@@ -217,7 +217,7 @@
       return treeChart.updateTree(hardClone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val()));
     };
     val = function(cssSelector){
-      return $(cssSelector).val() || '0';
+      return $(cssSelector).val() || '-';
     };
     reRoot = function(url){
       $('#loading').show();
@@ -225,7 +225,7 @@
         return $('#loading').addClass('visible');
       }, 500);
       console.log('*** ', url);
-      return $.ajax(url, function(r){
+      return $.get(url, function(r){
         root = r;
         updateTreeFromUi();
         $('#loading').removeClass('visible');

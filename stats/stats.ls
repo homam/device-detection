@@ -10,8 +10,14 @@ request-json = (url, callback) -->
 	(,,body) <- request url
 	callback <| JSON.parse body
 
-get-stats = (from, to, visits, country, ref, callback) -->
-	url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetStats?start_date=#{from}&end_date=#{to}&country_id=#{country}&visits=#{visits}&ref_id=#{ref}" 
+# removes null or undefined values from the map and creates Url + QueryString
+# [[QueryStringName, Value]] -> String -> String
+make-request-path-and-queryString = (nameValueMap, url) -->
+	(-> url + '?' + it) <| join '&' <| map (-> it[0] + '=' + it[1]) <| filter (-> !!it[1]), nameValueMap
+
+get-stats = (fromDate, toDate, visits, country, ref, callback) -->
+	#url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetStats?start_date=#{from}&end_date=#{to}&country_id=#{country}&visits=#{visits}&ref_id=#{ref}" 
+	url = make-request-path-and-queryString [['start_date', fromDate],['end_date', toDate],['country_id', country],['visits', visits], ['ref_id', ref]], 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetStats'
 	console.log "api << ", url
 	obj <- request-json url
 	callback lower-case-data obj
@@ -34,15 +40,16 @@ exports.get-stats = get-stats
 
 # stats-
 
-exports.stats-tree = (fromDate, toDate, visits = 0, country = 0, ref = 0, callback) ->
+exports.stats-tree = (fromDate, toDate, visits = 0, country = 0, ref = null, callback) ->
+	console.log 'stats-tree', ref
 	data <- (get-stats fromDate, toDate, visits, country, ref)
 	callback <| treefy data
 
-exports.stats-tree-by-superCampaign = (fromDate, toDate, visits = 0, superCampaign = 0, ref = 0, callback) ->
+exports.stats-tree-by-superCampaign = (fromDate, toDate, visits = 0, superCampaign = 0, ref = null, callback) ->
 	data <- (get-stats-by-superCampaign fromDate, toDate, visits, superCampaign, ref)
 	callback <| treefy data
 
-exports.stats-summary = (fromDate, toDate, visits = 0, country = 0, ref = 0, callback) ->
+exports.stats-summary = (fromDate, toDate, visits = 0, country = 0, ref = null, callback) ->
 	data <- (get-stats fromDate, toDate, visits, country, ref)
 	callback <| format data
 

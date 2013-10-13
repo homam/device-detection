@@ -129,14 +129,14 @@ $ ->
 		treeChart.update-tree hard-clone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
 
 
-	val = (cssSelector) -> $(cssSelector).val() || '0'
+	val = (cssSelector) -> $(cssSelector).val() || '-'
 
 	re-root = (url) -->
 		$('#loading').show()
 		setTimeout (-> $('#loading').addClass('visible')), 500
 		#url = "data/ae.json"
 		console.log '*** ', url
-		r <- $.ajax url
+		r <- $.get url
 		root := r
 		update-tree-from-ui!
 		$('#loading').removeClass('visible')
