@@ -1,17 +1,40 @@
+* {
+  outline: none;
+}
 body {
-  font: 12px sans-serif;
+  font-family: 'Segoe UI', Tahoma, Helvetica, sans-serif;
+  font-weight: normal;
+  font-size: 12px;
 }
 header {
   position: fixed;
   top: 0;
-  height: 60px;
   left: 0;
   right: 0;
+  width: 100%;
+  height: 65px;
+  margin: 0;
+  padding: 5px;
   z-index: 2;
-  background-color: #c0c0c0;
+  background: -webkit-linear-gradient(top, #eee 0%, #aaa 100%);
+  background: -moz-linear-gradient(top, #eee 0%, #aaa 100%);
+  background: -o-linear-gradient(top, #eee 0%, #aaa 100%);
+  background: -ms-linear-gradient(top, #eee 0%, #aaa 100%);
+  background: linear-gradient(to bottom, #eee 0%, #aaa 100%);
+  -webkit-box-shadow: 0 2px 2px rgba(0,0,0,0.25);
+  box-shadow: 0 2px 2px rgba(0,0,0,0.25);
+}
+header > div:first-child {
+  margin-bottom: 5px;
+}
+header input[type=date] {
+  width: 140px;
+  height: 22px;
 }
 header input[type=text] {
-  margin: 1px 0;
+  position: relative;
+  top: 2px;
+  margin: 0;
   padding: 5px;
   height: 15px;
 }
@@ -35,7 +58,7 @@ header #kill-children-threshold {
 }
 #loading {
   position: fixed;
-  top: 60px;
+  top: 75px;
   bottom: 0;
   left: 0;
   right: 0;
@@ -43,9 +66,13 @@ header #kill-children-threshold {
   opacity: 0;
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
   filter: alpha(opacity=0);
-  background-color: rgba(0,0,0,0.8);
-  color: rgba(255,255,255,0.8);
-  font-size: 100px;
+  background-color: rgba(0,0,0,0.75);
+  color: #fff;
+  font-size: 75px;
+  text-transform: capitalize;
+  text-align: center;
+  padding-top: 333px;
+  text-shadow: 0 3px 0 rgba(0,0,0,0.5);
   -webkit-transition: 0.5s;
   -moz-transition: 0.5s;
   -o-transition: 0.5s;
@@ -59,20 +86,22 @@ header #kill-children-threshold {
 }
 .tree {
   position: fixed;
-  top: 60px;
-  right: 0;
+  top: 75px;
+  bottom: 95px;
   left: 0;
-  bottom: 70px;
+  right: 0;
+  margin: 0;
+  padding: 0;
   overflow: auto;
   z-index: 1;
+}
+.tree .node {
+  font-size: 10px;
 }
 .tree .node circle {
   fill: #fff;
   stroke: #4682b4;
   stroke-width: 1.5px;
-}
-.tree .node {
-  font-size: 10px;
 }
 .tree .link {
   fill: none;
@@ -82,6 +111,7 @@ header #kill-children-threshold {
 .tree rect {
   fill: none;
   stroke: #fff;
+  stroke-width: 1px;
 }
 .tree rect.selected {
   -webkit-transition: outline 0.5s;
@@ -89,37 +119,61 @@ header #kill-children-threshold {
   -o-transition: outline 0.5s;
   -ms-transition: outline 0.5s;
   transition: outline 0.5s;
-  outline: solid 6px #000;
+  stroke: #000;
+  stroke-width: -2px;
+  outline: 5px solid #000;
 }
 footer {
   position: fixed;
-  right: 0;
-  left: 0;
   bottom: 0;
-  height: 70px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 95px;
+  margin: 0;
+  padding: 0;
   overflow: auto;
-  background-color: #c0c0c0;
+  background-color: #222;
 }
 footer .summary {
   clear: both;
+  margin: 0;
+  padding: 5px 0;
+  border-top: 1px solid #999;
+  background: -webkit-linear-gradient(top, #eee 0%, #aaa 100%);
+  background: -moz-linear-gradient(top, #eee 0%, #aaa 100%);
+  background: -o-linear-gradient(top, #eee 0%, #aaa 100%);
+  background: -ms-linear-gradient(top, #eee 0%, #aaa 100%);
+  background: linear-gradient(to bottom, #eee 0%, #aaa 100%);
+}
+footer .summary #create-a-test {
+  margin-left: 10px;
+  padding: 2px 10px;
 }
 footer .summary h2 {
   display: inline-block;
-  margin: 0;
-  padding: 0;
+  position: relative;
+  top: 4px;
   width: 75%;
+  margin: 0 5px;
+  padding: 0;
   font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   -o-text-overflow: ellipsis;
   text-overflow: ellipsis;
+  font-weight: normal;
+  text-transform: capitalize;
 }
 footer .summary h2 a {
   text-decoration: none;
   cursor: pointer;
+  color: #555;
+  text-shadow: 0 1px rgba(255,255,255,0.25);
 }
 footer .summary h2 a:hover {
-  text-decoration: underline;
+  text-decoration: none;
+  color: #000;
 }
 footer .summary h2 a:first-child:before {
   padding: 0;
@@ -130,51 +184,47 @@ footer .summary h2 a:before {
   content: '/';
 }
 footer .summary .all-methods-summary {
+  outline: solid 1px #555;
+  position: absolute;
+  top: 9px;
+  right: 10px;
   display: inline-block;
-  outline: solid 1px #808080;
+  -webkit-box-shadow: 2px 2px 0 rgba(255,255,255,0.25);
+  box-shadow: 2px 2px 0 rgba(255,255,255,0.25);
 }
 footer .summary .all-methods-summary > span {
   display: inline-block;
-  margin: 0 0.2em 0 0.2em;
   white-space: nowrap;
   overflow: hidden;
   -o-text-overflow: ellipsis;
   text-overflow: ellipsis;
-  width: 40px;
-}
-footer .summary .all-methods-summary > span.visits {
-  background: #ff0;
+  margin: 0 5px;
+  padding: 4px 5px 0px;
 }
 footer ul.node-methods-stats {
-  margin: 3px 0 0 0;
+  margin: 0;
   padding: 0;
 }
 footer ul.node-methods-stats > li {
   display: inline-block;
   width: 25%;
   margin: 0;
-  padding: 0;
+  padding: 5px 0;
+  color: #fff;
   list-style: none;
-  outline: solid 1px #808080;
+  outline: solid 1px #555;
 }
 footer ul.node-methods-stats > li > span {
   display: inline-block;
-  margin: 0 0.2em 0 0.2em;
   white-space: nowrap;
   overflow: hidden;
   -o-text-overflow: ellipsis;
   text-overflow: ellipsis;
+  margin: 0 10px;
   width: 40px;
-}
-footer ul.node-methods-stats > li > span.visits {
-  background: #ff0;
 }
 footer ul.node-methods-stats > li > span.method {
   font-weight: bold;
-  width: 50px;
-}
-footer ul.node-methods-stats > li > span.visits {
-  border: solid 2px #f00;
-  -webkit-border-radius: 10px;
-  border-radius: 10px;
+  width: 100px;
+  margin-left: 10px;
 }

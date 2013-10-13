@@ -1,133 +1,192 @@
 @import 'nib'
 
+*
+	outline: none;
+
 body
-	font: 12px sans-serif
+	font-family: 'Segoe UI',Tahoma,Helvetica,sans-serif;
+	font-weight: normal;
+	font-size: 12px;
+
 
 header
 	position: fixed
-	top: 0; height: 60px; left: 0; right: 0;
-	z-index: 2
-	background-color: silver
+	top: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	height: 65px;
+	margin: 0;
+	padding: 5px;
+	z-index: 2;
+	background: linear-gradient(to bottom, #eee 0%,#aaa 100%);
+	box-shadow: 0 2px 2px rgba(0,0,0,0.25);
+
+	> div:first-child
+		margin-bottom: 5px;
+
+	input[type=date]
+		width: 140px;
+		height: 22px;
+
 	input[type=text]
-		margin: 1px 0;
+		position: relative;
+		top: 2px;
+		margin: 0;
 		padding: 5px;
 		height: 15px;
 
 	#chosen-tests
-		width: 160px
+		width: 160px;
 	#chosen-superCampaigns
-		width: 210px
+		width: 210px;
 	#chosen-refs
-		width: 120px
+		width: 120px;
 	#chosen-methods
-		width: 400px
+		width: 400px;
 	#chosen-tree-ui-type
-		width: 120px
+		width: 120px;
 	#kill-children-threshold
-		width: 60px
+		width: 60px;
+
+
 
 #loading
 	position: fixed
-	top: 60px; bottom: 0; left: 0; right: 0;
-	z-index: 3
-	opacity: 0
-	background-color: rgba(0,0,0,.8)
-	color: rgba(255,255,255,.8)
-	font-size: 100px
-	transition .5s
-	&.visible
-		opacity: 1
+	top: 75px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 3;
+	opacity: 0;
+	background-color: rgba(0,0,0,0.75);
+	color: rgba(255,255,255,1);
+	font-size: 75px;
+	text-transform: capitalize;
+	text-align: center;
+	padding-top: 333px;
+	text-shadow: 0 3px 0 rgba(0,0,0,0.5);
+	transition: .5s;
 
+	&.visible
+		opacity: 1;
 
 
 
 .tree
-	position: fixed
-	top: 60px; right: 0; left: 0; bottom: 70px;
+	position: fixed;
+	top: 75px;
+	bottom: 95px;
+	left: 0;
+	right: 0;
+	margin: 0;
+	padding: 0;
 	overflow: auto
 	z-index: 1
+
+	.node
+		font-size: 10px;
 
 	.node circle
 		fill: #fff;
 		stroke: steelblue;
 		stroke-width: 1.5px;
 
-	.node
-		font-size: 10px;
-
 	.link
 		fill: none;
 		stroke: #ccc;
 		stroke-width: 1.5px;
 
-
-	// treemap
 	rect
 		fill: none;
 		stroke: #fff;
+		stroke-width: 1px;
 		&.selected
-			transition: outline 0.5s
-			outline: solid 6px black
-
-
-
-
+			transition: outline 0.5s;
+			stroke: #000;
+			stroke-width: -2px;
+			outline: 5px solid rgba(0,0,0,1);
 
 footer
-	position: fixed
-	right: 0; left: 0; bottom: 0;
-	height: 70px
-	overflow: auto
-	background-color: silver
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	height: 95px
+	margin: 0;
+	padding: 0;
+	overflow: auto;
+	background-color: #222;
+
 	values-container()
-		outline: solid 1px gray
+		outline: solid 1px #555;
 	value-field()
 		display: inline-block;
-		margin: 0 .2em 0 .2em;
-		overflow: ellipsis
-		width: 40px
-		&.visits
-			background: yellow
+		overflow: ellipsis;
 
 	.summary
-	
-		clear:both
+		clear: both;
+		margin: 0;
+		padding 5px 0;
+		border-top: 1px solid #999;
+		background: linear-gradient(to bottom, #eee 0%,#aaa 100%);
+		#create-a-test
+			margin-left: 10px;
+			padding: 2px 10px;
 		h2
-			display: inline-block
-			margin:0; padding:0;
-			width: 75%
-			font-size: 14px
-			overflow: ellipsis
+			display: inline-block;
+			position: relative;
+			top: 4px;
+			width: 75%;
+			margin: 0 5px;
+			padding: 0;
+			font-size: 14px;
+			overflow: ellipsis;
+			font-weight: normal;
+			text-transform: capitalize;
 			a
-				text-decoration: none
-				cursor: pointer
+				text-decoration: none;
+				cursor: pointer;
+				color: #555;
+				text-shadow: 0 1px rgba(255,255,255,0.25);
 				&:hover
-					text-decoration: underline
+					text-decoration: none;
+					color: #000;
 				&:first-child:before
-					padding: 0
-					content: ''
+					padding: 0;
+					content: '';
 				&:before
-					padding: 0 4px
-					content: '/'
+					padding: 0 4px;
+					content: '/';
 		.all-methods-summary
-			display: inline-block
 			values-container()
+			position: absolute;
+			top: 9px;
+			right: 10px;
+			display: inline-block;
+			box-shadow: 2px 2px 0 rgba(255,255,255,0.25);
 			> span
 				value-field()
+				margin 0 5px;
+				padding 4px 5px 0px;
 
 	ul.node-methods-stats
-		margin: 3px 0 0 0; padding: 0;
+		margin: 0;
+		padding: 0;
 		> li
 			display: inline-block;
 			width: 25%;
-			margin: 0; padding: 0;
+			margin: 0;
+			padding: 5px 0;
+			color: #fff;
 			list-style:none;
 			values-container()
 			> span
 				value-field()
+				margin: 0 10px;
+				width: 40px;
 				&.method
-					font-weight: bold
-					width: 50px
-				&.visits
-					border: solid 2px red
-					border-radius: 10px
+					font-weight: bold;
+					width: 100px;
+					margin-left: 10px;
