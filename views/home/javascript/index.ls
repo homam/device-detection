@@ -23,10 +23,11 @@ trace = (v) ->
 
 treeUiTypes = {
 	'tree-long-branches': tree-long-branches
-	'tree-map': tree-map
+	'tree-map': tree-map,
+	'devices-histogram': devices-histogram
 }
 
-treeChart = tree-map(screen.width-10,1000) #tree-map(1300,500) # tree-long-branches(1000,1000) 
+treeChart = devices-histogram(screen.width-10,1000) #tree-map(1300,500) # tree-long-branches(1000,1000) 
 
 
 $ ->
@@ -67,7 +68,7 @@ $ ->
 
 
 		select-node = (n) ->
-			console.log 'select-node', n.treeId
+			console.log 'select-node', n.treeId, n
 			d3.selectAll('rect.selected').classed('selected', false) # deselect currently selected one
 			d3.select(".node-#{n.treeId}").classed('selected', true)
 			update-stats-at-footer n
@@ -123,8 +124,7 @@ $ ->
 			), 0
 
 		
-		#((find (-> it.method == name), root.stats))
-		console.log [[name, calc-conv(find-method(name, root.stats)), (stndDev-of-conversion-for-method name, root)] for  {id,name} in listOfSubscriptioMethods]
+		#console.log [[name, calc-conv(find-method(name, root.stats)), (stndDev-of-conversion-for-method name, root)] for  {id,name} in listOfSubscriptioMethods]
 
 		treeChart.update-tree hard-clone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
 

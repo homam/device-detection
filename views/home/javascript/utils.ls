@@ -8,3 +8,5 @@ exports.fold-real-nodes = (node, func, seed) ->
 	| node.children.length == 0 => func(node, seed)
 	| otherwise => 
 		fold ((ac, a) -> fold-real-nodes(a, func, ac)), seed, node.children
+
+

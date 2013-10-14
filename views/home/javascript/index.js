@@ -76,9 +76,10 @@
   };
   treeUiTypes = {
     'tree-long-branches': treeLongBranches,
-    'tree-map': treeMap
+    'tree-map': treeMap,
+    'devices-histogram': devicesHistogram
   };
-  treeChart = treeMap(screen.width - 10, 1000);
+  treeChart = devicesHistogram(screen.width - 10, 1000);
   $(function(){
     var updateStatsAtFooter;
     updateStatsAtFooter = function(node){
@@ -139,7 +140,7 @@
         }
       };
       selectNode = function(n){
-        console.log('select-node', n.treeId);
+        console.log('select-node', n.treeId, n);
         d3.selectAll('rect.selected').classed('selected', false);
         d3.select(".node-" + n.treeId).classed('selected', true);
         return updateStatsAtFooter(n);
@@ -163,7 +164,7 @@
       return updateTreeFromUi();
     };
     updateTreeFromUi = function(){
-      var lastId, addIdToNode, findMethod, calcConv, stndDevOfConversionForMethod, id, name;
+      var lastId, addIdToNode, findMethod, calcConv, stndDevOfConversionForMethod;
       if (!root.stats) {
         console.log('nothing!');
         return;
@@ -206,14 +207,6 @@
           return v + acc;
         }, 0));
       };
-      console.log((function(){
-        var i$, ref$, len$, ref1$, results$ = [];
-        for (i$ = 0, len$ = (ref$ = listOfSubscriptioMethods).length; i$ < len$; ++i$) {
-          ref1$ = ref$[i$], id = ref1$.id, name = ref1$.name;
-          results$.push([name, calcConv(findMethod(name, root.stats)), stndDevOfConversionForMethod(name, root)]);
-        }
-        return results$;
-      }()));
       return treeChart.updateTree(hardClone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val()));
     };
     val = function(cssSelector){

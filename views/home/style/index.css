@@ -123,6 +123,10 @@ header #kill-children-threshold {
   stroke-width: -2px;
   outline: 5px solid #000;
 }
+.tree .devices-histogram rect {
+  stroke: #000;
+  fill: #ff0;
+}
 footer {
   position: fixed;
   bottom: 0;

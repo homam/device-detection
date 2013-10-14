@@ -179,10 +179,9 @@
           : shortenWurflDeviceName(sor(sor(sor(d.device, d.brand), d.os), ''));
       }).each(fontSize).each(wordWrap);
       $cell.exit().remove();
-      $renderNodeMethodsStats = function(node){
+      return $renderNodeMethodsStats = function(node){
         return $(window).trigger("tree/node-selected", [node]);
       };
-      return $renderNodeMethodsStats(root);
     };
     return {
       $svg: $svg,

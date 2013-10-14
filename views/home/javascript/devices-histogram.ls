@@ -1,8 +1,10 @@
 prelude = require('prelude-ls')
-{Obj,map, filter, each, find, fold, foldr, fold1, all, flatten, sum, group-by, obj-to-pairs, partition, join, unique} = require 'prelude-ls'
+{Obj,map, filter, each, find, fold, foldr, fold1, all, flatten, sum, group-by, obj-to-pairs, partition, join, unique,sort-by, maximum, minimum} = require 'prelude-ls'
 
 pow = Math.pow
 sqrt = Math.sqrt
+floor = Math.floor
+round = Math.round
 
 # utility functions 
 
@@ -15,6 +17,8 @@ trace = (v) ->
 	v
 
 sor = (a,b) -> if (!!a and a.length > 0 and a != ' ') then a else b
+
+name-node = (n) -> n.device `sor` n.brand `sor` n.os `sor` ''
 
 
 shorten-wurfl-device-name = (name) ->
@@ -64,9 +68,17 @@ stats = (methodFilter, node) ->
 
 exports = exports or this
 
-exports.tree-map = (width = 1000, height = 1000) ->
+exports.devices-histogram = (width = 1000, height = 1000) ->
+	height = 600
+	width= 1000
 
-	$svg = d3.select(".tree").append("svg").attr("width", width).attr("height", height).append("g").attr("transform", "translate(-.5,-.5)")
+	bins = 20
+	margins = [20, 50, 50, 20]
+	x = d3.scale.ordinal().rangeRoundBands([0, width - margins[1] - margins[3]]).domain([0 to bins-1])
+	y = d3.scale.linear().range([0, height - margins[0] - margins[2]])	
+	$svg = d3.select(".tree").append("svg")
+	.attr("class", "devices-histogram")
+	.attr("width", width).attr("height", height).append("g").attr("transform", "translate(#{margins[3]},#{height - margins[2]})")
 
 	# root :: Node
 	# selectedSubscriptionMethods :: [String]
@@ -118,35 +130,67 @@ exports.tree-map = (width = 1000, height = 1000) ->
 			), root # and
 
 
-		color = d3.scale.quantile().range ['#d94f34', '#d69838', '#cdd43c', '#8ad240', '#4dd044', '#48cd7a', '#4ccbb4', '#4fa9c9', '#5375c6', '#6656c4']
-		color.domain([0, convAverageSelected])
+
+
+		# convert the tree to an array
+		untree = do -> map (-> it.selectedStats = selectedStats(it); it) <| filter (-> !!it and !!it.stats) <|
+			fold-real-nodes root, ((n, acc) -> [n] ++ acc), null
+
+		convMax = (maximum <| map (-> it.selectedStats[2]) <| untree)
+		convMin = 0
+		binSize = convMax/(bins-1)
 
 		
 
-		# the actual d3 code region
+		make-y0 = ->
+			last = 0
+			(d) ->
+				current = last
+				last := d.y + last
+				return current
 
-		treemap = d3.layout.treemap().padding(0).size([width, height]).value(-> selected-stats(it)[0]) # selected-stats :: Node -> [Visits, Subscribers, Conv]
 
-		$cell = $svg.data([root]).selectAll("g.cell").data(treemap.nodes)
-		$cellEnter = $cell.enter().append("g").attr("class", "cell")
-		transition($cell).attr("transform", (d) ->"translate(" + d.x + "," + d.y + ")")
+		# blocks :: [ name, values :: [Node :: {x, y, y0, ...}] ]
+		blocks = do ->
+			((input) -> [{name: t.name, values: (map (->it.y0 = y0(it); it), t.values)} for [t, y0] in input]) <|
+			# create new y0 makers for each block
+			map (-> [it, make-y0()]) <|
+			# sort the y values so the larger block will be at the bottom
+			((input) -> [{name:parseInt(name), values:(sort-by (->-it.y), values)} for [name, values] in input]) <| 
+			obj-to-pairs <| group-by (-> it.x) <|
+			map (-> 
+				it.x = (round <| it.selectedStats[2] / binSize);
+				it.y = it.selectedStats[0];
+				it) <| untree
 		
-		$cellEnter.append("rect").on('mousedown', -> $render-node-methods-stats it) # enter
-		transition($cell.select('rect').attr('class', -> "node-#{it.treeId}")).attr("width", (d) -> d.dx).attr("height", (d) -> d.dy)
-		.style("fill", -> if it.children and it.children.length > 0 then 'none' else color selected-stats(it)[2]) # update
-
-		$cellEnter.append("text").on('mousedown', -> $render-node-methods-stats it) # enter
-		$cell.select('text')
-		# .attr("x", (d) ->d.dx / 2).attr("y", (d) ->d.dy / 2).attr("dy", ".35em").attr("text-anchor", "middle")
-		# .text((d) ->(if d.children and d.children.length>0 then null else shorten-wurfl-device-name(d.device `sor` d.brand `sor` d.os `sor` '')))
-		.attr('x', 0).attr('dx', "0.35em").attr('dy', "0.9em")
-		.each((d) -> d.key = (if d.children and d.children.length>0 then null else shorten-wurfl-device-name(d.device `sor` d.brand `sor` d.os `sor` '')))
-		.each(fontSize)
-		.each(wordWrap)
+		# fill the empty bins
+		blocks = do -> 
+			map ((b)->{name:b, values:((find (-> it.name == b), blocks) or {values:[]}).values}) <| [0 to bins-1]
 
 
-		$cell.exit().remove()
-		# end the actual d3 code region
+		y.domain([0, do -> maximum <| map (-> it.y + it.y0) <| flatten <| map (-> it.values) <| blocks])
+
+
+		$bin = $svg.selectAll('g.bin').data(blocks)
+		$binEnter = $bin.enter().append('g').attr('class', 'bin')
+		$bin.exit().remove()
+		$bin.attr("transform", -> "translate(#{x(it.name)},#{margins[0]})")
+
+		$binEnter.append('text').attr('class', 'bin-label')
+		.attr("text-anchor", "middle").attr("dy", "1em")
+		$bin.select('text.bin-label').attr("x", x.rangeBand() / 2).attr("y", 0).text(-> d3.format('.1%')(it.name * binSize))
+
+
+		$device = $bin.selectAll('g.device').data(-> it.values)
+		$deviceEnter = $device.enter().append('g').attr('class', 'device')
+		.on('mousedown', -> $render-node-methods-stats it)
+		$deviceEnter.append('rect')
+		$device.select('rect').attr("width", -> x.rangeBand()).attr("height", -> y(it.y))
+		.attr("x", 0).attr("y", -> -y(it.y0) - y(it.y))
+		$device.exit().remove()
+		
+
+
 
 
 
