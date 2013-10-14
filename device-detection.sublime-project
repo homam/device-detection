@@ -3,7 +3,7 @@
 	[
 		{
 			"follow_symlinks": true,
-			"path": "C:\\GitHub\\device-detection-client",
+			"path": ".",
 			"file_exclude_patterns":  ["*.js", "*.css"]
 		}
 	]
