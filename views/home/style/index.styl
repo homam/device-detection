@@ -9,6 +9,47 @@ body
 	font-size: 12px;
 
 
+.dialog 
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 10;
+	background-color: rgba(0,0,0,.9);
+	opacity: 0
+	transition: .5s
+	color: white;
+	display: none
+	
+	&.visible
+		opacity: 1
+
+	.dialog-inside
+		width: 600px
+		height: 500px
+		overflow: auto
+		margin: 50%;
+		left: -300px;
+		top: -300px;
+		position: relative;
+		padding: 20px 0 0 0;
+
+		.dialog-close
+			position: absolute;
+			top: 0;
+			right: 0;
+			cursor: pointer
+
+	&#create-a-test-dialog
+		select
+			width: 500px
+		.select2-container
+			display: block
+			margin-bottom: 20px
+			
+		
+
 header
 	position: fixed
 	top: 0;

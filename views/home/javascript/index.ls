@@ -167,9 +167,12 @@ $ ->
 
 
 	# header
-	d3.select('#chosen-methods').selectAll('option').data(listOfSubscriptioMethods)
+	d3.select('.methods').selectAll('option').data(listOfSubscriptioMethods)
 	.enter().append('option').text(-> it.name)
 	$('#chosen-methods').select2({width: 'element'}).change(->update-tree-from-ui())
+
+	# dialog
+	$('#create-a-test-dialog .methods').select2({width: 'element'})
 
 	$('#chosen-methods-orand').change ->
 		$('#kill-children-threshold').val(if $(this).is(':checked') then 100 else 0)
@@ -177,19 +180,31 @@ $ ->
 
 	$('#kill-children-threshold').change(->update-tree-from-ui!)
 
+
+	populate-chosen-select-by-data = ($select, data, defaultValue = null) ->
+		d3.select($select[0]).selectAll('option').data(data)
+		.enter().append('option').attr("value", -> it.id).text(-> it.name)
+		$select2 = $select.select2({width: 'element', allowClear: true})
+		if defaultValue is not null and typeof(defaultValue) != "undefined"
+			$select2.select2('val', defaultValue)
+		[$select, data]
+
 	# callback :: ($jQuerySelect) -> void
 	populate-chosen-select = ($select, url, mapFunc, defaultValue, callback) ->
 		data <- $.get url
 		data  = mapFunc data
-		d3.select($select[0]).selectAll('option').data(data)
-		.enter().append('option').attr("value", -> it.id).text(-> it.name)
-		$select.select2({width: 'element', allowClear: true}).select2('val', defaultValue)
-		callback $select
+		populate-chosen-select-by-data $select, data, defaultValue
+		callback $select, data
 
 
 	
-	_ <- populate-chosen-select($('#chosen-countries').on('change', -> re-root-country!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', 
+	(_, countries) <- populate-chosen-select($('#chosen-countries').on('change', -> re-root-country!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetAllCountries', 
 		((countries) -> [{}] ++ countries), 2) # select uae as the intial country TODO: get it from query string
+
+	# dialog
+	populate-chosen-select-by-data $('#create-a-test-dialog .countries'), countries
+
+
 
 	do ->
 		_ <- populate-chosen-select($('#chosen-refs').on('change', -> re-root-again!), 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetRefs',
@@ -220,7 +235,25 @@ $ ->
 	re-root-again!
 
 
+	$('#create-a-test').click ->
+		show-dialog $('#create-a-test-dialog')
+
+	# end $()
 
 
+
+show-dialog = ($selector) ->
+	hide-dilaog = ->
+		console.log 'hiding dialog'
+		$selector.removeClass('visible')
+		setTimeout (-> $selector.hide!), 500
+
+	$selector.show!
+	setTimeout (-> $selector.addClass('visible')), 500
+
+	console.log $selector.find('.dialog-close')
+	$selector.find('.dialog-close').one 'mousedown', -> hide-dilaog!
+
+	hide: hide-dilaog
 
 

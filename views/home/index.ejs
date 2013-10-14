@@ -12,10 +12,13 @@
     </head>
 <body>
     <div class="dialog" id="create-a-test-dialog">
-        <div id="create-test-wurflId"></div>
-        <select id="chosen-create-test-countries" data-placeholder="Countries" multiple></select>
-        <select id="chosen-create-test-methods" data-placeholder="Methods" multiple></select>
-        <button class='commit'>Create the Test</button>
+        <div class="dialog-inside">
+            <span class="dialog-close">&times;</span>
+            <div id="create-test-wurflId"></div>
+            <select id="chosen-create-test-countries" class="countries" data-placeholder="Countries" multiple></select>
+            <select id="chosen-create-test-methods" class="methods" data-placeholder="Methods" multiple></select>
+            <button class='commit'>Create the Test</button>
+        </div>
     </div>
 	<header>
 		<div>
