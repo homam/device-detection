@@ -147,14 +147,32 @@ $ ->
 		[filteredRoot, selected-stats] = filter-tree hard-clone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
 		untree = do -> filter (-> !!it) <| fold-real-nodes filteredRoot, ((n, acc) -> [n] ++ acc), null
 
+
+
+		# find a node select
+		$wurflSelect = $('#chosen-find-wurfl-node')
+		currentWurflNode = $wurflSelect.val!
+
 		$option = d3.select('#chosen-find-wurfl-node').selectAll('option').data([{}] ++ untree)
 		$option.enter().append('option')
-		$option.text(-> it.device)
+		$option.text(-> it.device).attr('value', -> it.device)
 		$option.exit().remove()
 
-		$('#chosen-find-wurfl-node').select2({width: 'element', allowClear: true})
+		$wurflSelect.select2({width: 'element', allowClear: true})
+		$wurflSelect.on 'change', ->
+			if this.selectedIndex > 0
+				node = this.options[this.selectedIndex].__data__
+				$(window).trigger("tree/node-selected", [node, true])
 
-		treeChart.update-tree (add-parent-to-node null, filteredRoot), selected-stats #(add-parent-to-node null, hard-clone(root)), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
+		$wurflSelect.select2('val', currentWurflNode)
+
+
+		treeChart.update-tree (add-parent-to-node null, filteredRoot), selected-stats
+
+
+		# delay updating the chart till after it is rendered
+		if !!$wurflSelect.val()
+			$wurflSelect.change()
 
 
 	val = (cssSelector) -> $(cssSelector).val() || '-'

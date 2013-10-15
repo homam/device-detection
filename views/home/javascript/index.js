@@ -181,7 +181,7 @@
       return updateTreeFromUi();
     };
     updateTreeFromUi = function(){
-      var lastTreeId, addTreeIdToNode, addParentToNode, findMethod, calcConv, stndDevOfConversionForMethod, ref$, filteredRoot, selectedStats, untree, $option;
+      var lastTreeId, addTreeIdToNode, addParentToNode, findMethod, calcConv, stndDevOfConversionForMethod, ref$, filteredRoot, selectedStats, untree, $wurflSelect, currentWurflNode, $option;
       if (!root.stats) {
         console.log('nothing!');
         return;
@@ -239,17 +239,32 @@
           return [n].concat(acc);
         }, null));
       }();
+      $wurflSelect = $('#chosen-find-wurfl-node');
+      currentWurflNode = $wurflSelect.val();
       $option = d3.select('#chosen-find-wurfl-node').selectAll('option').data([{}].concat(untree));
       $option.enter().append('option');
       $option.text(function(it){
         return it.device;
+      }).attr('value', function(it){
+        return it.device;
       });
       $option.exit().remove();
-      $('#chosen-find-wurfl-node').select2({
+      $wurflSelect.select2({
         width: 'element',
         allowClear: true
       });
-      return treeChart.updateTree(addParentToNode(null, filteredRoot), selectedStats);
+      $wurflSelect.on('change', function(){
+        var node;
+        if (this.selectedIndex > 0) {
+          node = this.options[this.selectedIndex].__data__;
+          return $(window).trigger("tree/node-selected", [node, true]);
+        }
+      });
+      $wurflSelect.select2('val', currentWurflNode);
+      treeChart.updateTree(addParentToNode(null, filteredRoot), selectedStats);
+      if (!!$wurflSelect.val()) {
+        return $wurflSelect.change();
+      }
     };
     val = function(cssSelector){
       return $(cssSelector).val() || '-';
