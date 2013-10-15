@@ -181,7 +181,7 @@
       return updateTreeFromUi();
     };
     updateTreeFromUi = function(){
-      var lastTreeId, addTreeIdToNode, addParentToNode, findMethod, calcConv, stndDevOfConversionForMethod;
+      var lastTreeId, addTreeIdToNode, addParentToNode, findMethod, calcConv, stndDevOfConversionForMethod, ref$, filteredRoot, selectedStats, untree, $option;
       if (!root.stats) {
         console.log('nothing!');
         return;
@@ -231,7 +231,25 @@
           return v + acc;
         }, 0));
       };
-      return treeChart.updateTree(addParentToNode(null, hardClone(root)), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val()));
+      ref$ = filterTree(hardClone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())), filteredRoot = ref$[0], selectedStats = ref$[1];
+      untree = function(){
+        return filter(function(it){
+          return !!it;
+        })(foldRealNodes(filteredRoot, function(n, acc){
+          return [n].concat(acc);
+        }, null));
+      }();
+      $option = d3.select('#chosen-find-wurfl-node').selectAll('option').data([{}].concat(untree));
+      $option.enter().append('option');
+      $option.text(function(it){
+        return it.device;
+      });
+      $option.exit().remove();
+      $('#chosen-find-wurfl-node').select2({
+        width: 'element',
+        allowClear: true
+      });
+      return treeChart.updateTree(addParentToNode(null, filteredRoot), selectedStats);
     };
     val = function(cssSelector){
       return $(cssSelector).val() || '-';

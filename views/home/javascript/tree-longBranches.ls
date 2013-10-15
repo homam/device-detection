@@ -10,57 +10,13 @@ listOfSubscriptioMethods = [{"id":0,"name":"Unknown", label: "??"},{"id":11,"nam
 
 format-date = d3.time.format('%Y-%m-%d')
 
-hard-clone = -> JSON.parse JSON.stringify it
-
-trace = (v) ->
-	console.log v
-	v
-
 sor = (a,b) -> if (!!a and a.length > 0 and a != ' ') then a else b
-
 
 shorten-wurfl-device-name = (name) ->
 	if !name 
 		return name
 	verIndex = name.indexOf("ver")
 	return if verIndex > 0 then name.substr(0, verIndex+1) + '..' else name
-
-# methodSelector :: Method -> Bool
-# prop :: String
-_sum-stats = (methodSelector, prop, node) --> fold1 (+) <| ([m[prop] for m in node.stats when methodSelector(m.method)])
-sum-visits = (methodSelector, node) --> 	_sum-stats methodSelector, 'visits', node
-sum-subscribers = (methodSelector, node) --> _sum-stats methodSelector, 'subscribers', node
-
-
-# update all nodes with accumulated stats info
-update-all-nodes = (updater, node) -->
-	| node.children.length == 0 => node
-	| otherwise => (map (update-all-nodes updater), node.children)
-	updater node
-
-
-# remove children that match the criteria
-# criteria: Node -> Bool
-kill-children-by-criteria = (criteria, node) -->
-	| node.children.length == 0 => node
-	| otherwise => 
-		node.children = filter (-> criteria it), node.children
-		(map (kill-children-by-criteria criteria), node.children)
-	node
-
-# remove children with low number of visits
-# visitsSelector: Node -> Number
-kill-children = (minVisits, visitsSelector, node) --> 
-	kill-children-by-criteria (-> visitsSelector(it) > minVisits), node
-
-
-# (String -> Bool), Node -> [Visits, Subscribers, Conversion]
-stats = (methodFilter, node) ->
-	v = sum-visits methodFilter, node
-	s = sum-subscribers methodFilter, node
-	c = if v == 0 then 0 else s/v
-	[v,s,c]
-
 
 
 
@@ -77,54 +33,18 @@ exports.tree-long-branches = (width = 1000, height = 1000) ->
 	# selectedSubscriptionMethods :: [String]
 	# selectedSubscriptionMethodsOr :: Bool
 	# call this function to update the UI and the tree graphics
-	update-tree = (root, selectedSubscriptionMethods, selectedSubscriptionMethodsOr, excludeDesktop, killChildrenThreshold = 100) ->
+	update-tree = (root, selected-stats) ->
 
-		if excludeDesktop
-			root.children = filter (-> it.os != 'Desktop'), root.children
-
-		# [String] -> (String -> Bool)
 		create-method-filter = (selectedMethods) -> (method) -> method in selectedMethods
-
-		# all if selectedSubscriptionMethods is null
-		# String -> Bool
-		selected-method-filter = if !selectedSubscriptionMethods then (->true) else create-method-filter selectedSubscriptionMethods
-
-		# Node -> Number
-		selected-visits = sum-visits selected-method-filter
-
-		# Node -> Number
-		selected-subscribers = sum-subscribers selected-method-filter
-
-		# Node -> [Visits, Subscribers, Conv]
-		selected-stats = (node) -> stats selected-method-filter, node
-
 
 		[totalVisitsSelected,totalSubscribersSelected,convAverageSelected] = selected-stats root
 
-		convStnDevSelected = fold-real-nodes root, ((n, acc) -> 
-			[v,s,conv] = selected-stats n
-			acc + sqrt(pow(conv - convAverageSelected, 2))*v/totalVisitsSelected), 0
-
-
-		#console.log convAverageSelected
-		#console.log convAverageSelected
-		#console.log convStnDevSelected
 
 		# utility for animating transition
 		transition = (node) -> node.transition().duration(500)
 
-		# end selected methods region
-
-		if selectedSubscriptionMethodsOr
-			root = kill-children killChildrenThreshold, selected-visits, root # or
-		else
-			root = kill-children-by-criteria ((node) ->
-				all (->it), [((find (-> it.method == m), node.stats).visits > killChildrenThreshold) for m in selectedSubscriptionMethods]
-			), root # and
-
-
 		color = d3.scale.quantile().range ['#f21b1b', '#ed771c', '#e9ce1e', '#a9e41f', '#53df21', '#22da40', '#23d58e', '#24cbd0', '#257ecb', '#2636c7']
-		color.domain([0, convAverageSelected+2*convStnDevSelected])
+		color.domain([0, convAverageSelected])
 
 		nodes = tree.nodes(root)
 		links = tree.links(nodes)
@@ -142,7 +62,7 @@ exports.tree-long-branches = (width = 1000, height = 1000) ->
 			.text((d) -> 
 				name  = (d.device `sor` d.brand `sor` d.os `sor` '')
 				# dStats :: [Method, Code, Visits, Subscribers, Conversion]
-				dStats = [[m,l] ++ stats(create-method-filter([m]), d) for {name:m, label:l} in listOfSubscriptioMethods]
+				dStats = [[m,l] ++ node-selected-stats(create-method-filter([m]), d) for {name:m, label:l} in listOfSubscriptioMethods]
 				dMethodsWithVisits = fold ((acc, c) -> if c[2] > 0 then acc ++ c[1] else acc), [], dStats 
 				shorten-wurfl-device-name(name) + ' {' + (join '|', dMethodsWithVisits) + '}'
 			)

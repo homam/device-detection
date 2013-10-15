@@ -144,7 +144,17 @@ $ ->
 			), 0
 
 
-		treeChart.update-tree (add-parent-to-node null, hard-clone(root)), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
+		[filteredRoot, selected-stats] = filter-tree hard-clone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
+		untree = do -> filter (-> !!it) <| fold-real-nodes filteredRoot, ((n, acc) -> [n] ++ acc), null
+
+		$option = d3.select('#chosen-find-wurfl-node').selectAll('option').data([{}] ++ untree)
+		$option.enter().append('option')
+		$option.text(-> it.device)
+		$option.exit().remove()
+
+		$('#chosen-find-wurfl-node').select2({width: 'element', allowClear: true})
+
+		treeChart.update-tree (add-parent-to-node null, filteredRoot), selected-stats #(add-parent-to-node null, hard-clone(root)), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
 
 
 	val = (cssSelector) -> $(cssSelector).val() || '-'
