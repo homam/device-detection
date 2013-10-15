@@ -56,30 +56,43 @@ $ ->
 			#if it.visits < (allMethodsSummary.visits * 0.1) then 0.5 else 1))
 
 
+	name-node = (n) -> n.device `sor` n.brand `sor` n.os `sor` ''
+
+	all-parents = (n, list) ->
+		| !n._parent => [n] ++ list
+		| otherwise => all-parents(n._parent, list) ++ [n] ++ list
+
 	#  event handler: node clicked
-	$(window).on "tree/node-selected", (.., node)->
-		#vTotal = sum-visits (->true), node
-		#[vSelected, sSelected, cSelected]  = selected-stats node
-		name-node = (n) -> n.device `sor` n.brand `sor` n.os `sor` ''
+	$(window).on "tree/node-selected", (.., node, keepBreadcrumb = false)->
 
-		all-parents = (n, list) ->
-			| !n.parent => [n] ++ list
-			| otherwise => all-parents(n.parent, list) ++ [n] ++ list
+		# create a test dialog:
+		$('#create-a-test').unbind('click').one 'click', ->
+			dialog = show-dialog $('#create-a-test-dialog')
+			$('.wurflId').text(name-node node)
+			$('#create-a-test-dialog .commit').one 'click', ->
+				countries = $('#chosen-create-test-countries').val()
+				methods = $('#chosen-create-test-methods').val()
+				if !!countries and !!methods and !!countries.length and !!methods.length
+					url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/CreateDeviceTest?wurfl_id=#{node.id}&methods=#{methods}&countries=#{countries}"
+					console.log "create-a-test url << ", url
+					result <- $.get url
+					console.log 'test created', result
+					$('#create-a-test-dialog .step-1').hide()
+					$('#create-a-test-dialog .step-2').show()
+					$('#create-a-test-dialog .step-2 .results').text("Test Created, ID = #{result[0].id}")
 
 
-		select-node = (n) ->
-			console.log 'select-node', n.treeId, n
-			d3.selectAll('rect.selected').classed('selected', false) # deselect currently selected one
-			d3.select(".node-#{n.treeId}").classed('selected', true)
-			update-stats-at-footer n
+		update-stats-at-footer node
 
+		if !keepBreadcrumb
+			$('.stats h2').html('')
+			names = (all-parents node, []) #map (->{id: it.treeId, name: name-node(it)}), (all-parents node, [])
+			$a = d3.select('.stats h2').selectAll('a').data(names)
+			.enter().append('a').text(->name-node(it))#.on('click', -> select-node-from-breadcrumb it)
+			.on('click', -> $(window).trigger("tree/node-selected", [it, true])) # keepBreadcrumb
 
-		select-node node
-
-		$('.stats h2').html('')
-		names = (all-parents node, []) #map (->{id: it.treeId, name: name-node(it)}), (all-parents node, [])
-		$a = d3.select('.stats h2').selectAll('a').data(names)
-		.enter().append('a').text(->name-node(it)).on('click', -> select-node it)
+		
+		
 $ ->
 	root = null
 
@@ -95,12 +108,19 @@ $ ->
 			console.log 'nothing!'
 			return
 
-		lastId = 0
-		add-id-to-node = (n) ->
-			| !n.children or n.children.length == 0 => n.treeId = ++lastId
-			| otherwise => n.treeId = ++lastId; each (add-id-to-node), n.children
+		lastTreeId = 0
+		add-treeId-to-node = (n) -->
+			| !n.children or n.children.length == 0 => n.treeId = ++lastTreeId;
+			| otherwise => n.treeId = ++lastTreeId; each (add-treeId-to-node), n.children
 
-		add-id-to-node root
+		add-treeId-to-node root
+
+
+		add-parent-to-node = (parent, n) -->
+			n._parent = parent;
+			if !!n.children
+				each (add-parent-to-node n), n.children
+			n
 
 
 		find-method = (name, stats) ->
@@ -123,10 +143,8 @@ $ ->
 				return v+acc
 			), 0
 
-		
-		#console.log [[name, calc-conv(find-method(name, root.stats)), (stndDev-of-conversion-for-method name, root)] for  {id,name} in listOfSubscriptioMethods]
 
-		treeChart.update-tree hard-clone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
+		treeChart.update-tree (add-parent-to-node null, hard-clone(root)), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val())
 
 
 	val = (cssSelector) -> $(cssSelector).val() || '-'
@@ -167,12 +185,20 @@ $ ->
 
 
 	# header
-	d3.select('.methods').selectAll('option').data(listOfSubscriptioMethods)
-	.enter().append('option').text(-> it.name)
+
+	# D3Selection <select> -> D3Selections <option>
+	populate-methods = ($d3select) ->
+		$d3select.selectAll('option').data(listOfSubscriptioMethods)
+		.enter().append('option').text(-> it.name)
+	
+	# header
+	populate-methods(d3.select('#chosen-methods'))
 	$('#chosen-methods').select2({width: 'element'}).change(->update-tree-from-ui())
 
+
 	# dialog
-	$('#create-a-test-dialog .methods').select2({width: 'element'})
+	populate-methods(d3.select('#chosen-create-test-methods')).attr('value', -> it.id)
+	$('#chosen-create-test-methods').select2({width: 'element'})
 
 	$('#chosen-methods-orand').change ->
 		$('#kill-children-threshold').val(if $(this).is(':checked') then 100 else 0)
@@ -235,9 +261,6 @@ $ ->
 	re-root-again!
 
 
-	$('#create-a-test').click ->
-		show-dialog $('#create-a-test-dialog')
-
 	# end $()
 
 
@@ -248,10 +271,11 @@ show-dialog = ($selector) ->
 		$selector.removeClass('visible')
 		setTimeout (-> $selector.hide!), 500
 
+	$selector.find('.step').hide()
+	$selector.find('.step-1').show()
 	$selector.show!
 	setTimeout (-> $selector.addClass('visible')), 500
 
-	console.log $selector.find('.dialog-close')
 	$selector.find('.dialog-close').one 'mousedown', -> hide-dilaog!
 
 	hide: hide-dilaog

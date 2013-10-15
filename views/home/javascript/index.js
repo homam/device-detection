@@ -81,7 +81,7 @@
   };
   treeChart = devicesHistogram(screen.width - 10, 1000);
   $(function(){
-    var updateStatsAtFooter;
+    var updateStatsAtFooter, nameNode, allParents;
     updateStatsAtFooter = function(node){
       var allMethodsSummary, $summarySpan, $li, $liEnter, renderMethodStats;
       allMethodsSummary = fold(function(acc, a){
@@ -126,37 +126,54 @@
         return d3.scale.linear().domain([0, 0.33]).range([0.2, 1]).clamp(true)(ratio);
       });
     };
-    return $(window).on("tree/node-selected", function(ref$, node){
-      var nameNode, allParents, selectNode, names, $a;
-      nameNode = function(n){
-        return sor(sor(sor(n.device, n.brand), n.os), '');
-      };
-      allParents = function(n, list){
-        switch (false) {
-        case !!n.parent:
-          return [n].concat(list);
-        default:
-          return allParents(n.parent, list).concat([n], list);
-        }
-      };
-      selectNode = function(n){
-        console.log('select-node', n.treeId, n);
-        d3.selectAll('rect.selected').classed('selected', false);
-        d3.select(".node-" + n.treeId).classed('selected', true);
-        return updateStatsAtFooter(n);
-      };
-      selectNode(node);
-      $('.stats h2').html('');
-      names = allParents(node, []);
-      return $a = d3.select('.stats h2').selectAll('a').data(names).enter().append('a').text(function(it){
-        return nameNode(it);
-      }).on('click', function(it){
-        return selectNode(it);
+    nameNode = function(n){
+      return sor(sor(sor(n.device, n.brand), n.os), '');
+    };
+    allParents = function(n, list){
+      switch (false) {
+      case !!n._parent:
+        return [n].concat(list);
+      default:
+        return allParents(n._parent, list).concat([n], list);
+      }
+    };
+    return $(window).on("tree/node-selected", function(ref$, node, keepBreadcrumb){
+      var names, $a;
+      keepBreadcrumb == null && (keepBreadcrumb = false);
+      $('#create-a-test').unbind('click').one('click', function(){
+        var dialog;
+        dialog = showDialog($('#create-a-test-dialog'));
+        $('.wurflId').text(nameNode(node));
+        return $('#create-a-test-dialog .commit').one('click', function(){
+          var countries, methods, url;
+          countries = $('#chosen-create-test-countries').val();
+          methods = $('#chosen-create-test-methods').val();
+          if (!!countries && !!methods && !!countries.length && !!methods.length) {
+            url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/CreateDeviceTest?wurfl_id=" + node.id + "&methods=" + methods + "&countries=" + countries;
+            console.log("create-a-test url << ", url);
+            return $.get(url, function(result){
+              console.log('test created', result);
+              $('#create-a-test-dialog .step-1').hide();
+              $('#create-a-test-dialog .step-2').show();
+              return $('#create-a-test-dialog .step-2 .results').text("Test Created, ID = " + result[0].id);
+            });
+          }
+        });
       });
+      updateStatsAtFooter(node);
+      if (!keepBreadcrumb) {
+        $('.stats h2').html('');
+        names = allParents(node, []);
+        return $a = d3.select('.stats h2').selectAll('a').data(names).enter().append('a').text(function(it){
+          return nameNode(it);
+        }).on('click', function(it){
+          return $(window).trigger("tree/node-selected", [it, true]);
+        });
+      }
     });
   });
   $(function(){
-    var root, changeTreeUi, updateTreeFromUi, val, reRoot, reRootAgain, reRootCountry, reRootSuperCampaign, populateChosenSelectByData, populateChosenSelect;
+    var root, changeTreeUi, updateTreeFromUi, val, reRoot, reRootAgain, reRootCountry, reRootSuperCampaign, populateMethods, populateChosenSelectByData, populateChosenSelect;
     root = null;
     changeTreeUi = function(type){
       $(".tree").html('');
@@ -164,22 +181,29 @@
       return updateTreeFromUi();
     };
     updateTreeFromUi = function(){
-      var lastId, addIdToNode, findMethod, calcConv, stndDevOfConversionForMethod;
+      var lastTreeId, addTreeIdToNode, addParentToNode, findMethod, calcConv, stndDevOfConversionForMethod;
       if (!root.stats) {
         console.log('nothing!');
         return;
       }
-      lastId = 0;
-      addIdToNode = function(n){
+      lastTreeId = 0;
+      addTreeIdToNode = function(n){
         switch (false) {
         case !(!n.children || n.children.length === 0):
-          return n.treeId = ++lastId;
+          return n.treeId = ++lastTreeId;
         default:
-          n.treeId = ++lastId;
-          return each(addIdToNode, n.children);
+          n.treeId = ++lastTreeId;
+          return each(addTreeIdToNode, n.children);
         }
       };
-      addIdToNode(root);
+      addTreeIdToNode(root);
+      addParentToNode = curry$(function(parent, n){
+        n._parent = parent;
+        if (!!n.children) {
+          each(addParentToNode(n), n.children);
+        }
+        return n;
+      });
       findMethod = function(name, stats){
         return find(function(it){
           return it.method === name;
@@ -207,7 +231,7 @@
           return v + acc;
         }, 0));
       };
-      return treeChart.updateTree(hardClone(root), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val()));
+      return treeChart.updateTree(addParentToNode(null, hardClone(root)), $('#chosen-methods').val(), $('#chosen-methods-orand').is(':checked'), true, parseInt($('#kill-children-threshold').val()));
     };
     val = function(cssSelector){
       return $(cssSelector).val() || '-';
@@ -245,15 +269,21 @@
       return reRoot(url);
     };
     reRootAgain = reRootCountry;
-    d3.select('.methods').selectAll('option').data(listOfSubscriptioMethods).enter().append('option').text(function(it){
-      return it.name;
-    });
+    populateMethods = function($d3select){
+      return $d3select.selectAll('option').data(listOfSubscriptioMethods).enter().append('option').text(function(it){
+        return it.name;
+      });
+    };
+    populateMethods(d3.select('#chosen-methods'));
     $('#chosen-methods').select2({
       width: 'element'
     }).change(function(){
       return updateTreeFromUi();
     });
-    $('#create-a-test-dialog .methods').select2({
+    populateMethods(d3.select('#chosen-create-test-methods')).attr('value', function(it){
+      return it.id;
+    });
+    $('#chosen-create-test-methods').select2({
       width: 'element'
     });
     $('#chosen-methods-orand').change(function(){
@@ -337,10 +367,7 @@
       $('#chosen-tree-ui-type').select2().change(function(){
         return changeTreeUi($(this).val());
       });
-      reRootAgain();
-      return $('#create-a-test').click(function(){
-        return showDialog($('#create-a-test-dialog'));
-      });
+      return reRootAgain();
     });
   });
   showDialog = function($selector){
@@ -352,11 +379,12 @@
         return $selector.hide();
       }, 500);
     };
+    $selector.find('.step').hide();
+    $selector.find('.step-1').show();
     $selector.show();
     setTimeout(function(){
       return $selector.addClass('visible');
     }, 500);
-    console.log($selector.find('.dialog-close'));
     $selector.find('.dialog-close').one('mousedown', function(){
       return hideDilaog();
     });
@@ -364,4 +392,17 @@
       hide: hideDilaog
     };
   };
+  function curry$(f, bound){
+    var context,
+    _curry = function(args) {
+      return f.length > 1 ? function(){
+        var params = args ? args.concat() : [];
+        context = bound ? context || this : this;
+        return params.push.apply(params, arguments) <
+            f.length && arguments.length ?
+          _curry.call(context, params) : f.apply(context, params);
+      } : f;
+    };
+    return _curry();
+  }
 }).call(this);

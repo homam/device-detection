@@ -9,4 +9,10 @@ exports.fold-real-nodes = (node, func, seed) ->
 	| otherwise => 
 		fold ((ac, a) -> fold-real-nodes(a, func, ac)), seed, node.children
 
+each-tree-node = (func, node) -->
+	func(node)
+	if !!node.children and !!node.children.length
+		each (each-tree-node func), node.children
 
+
+exports.each-tree-node = each-tree-node

@@ -93,7 +93,7 @@
   };
   exports = exports || this;
   exports.devicesHistogram = function(width, height){
-    var bins, margins, x, y, $svg, updateTree;
+    var bins, margins, x, y, $svg, color, updateTree;
     width == null && (width = 1000);
     height == null && (height = 1000);
     height = 600;
@@ -109,6 +109,7 @@
     }()));
     y = d3.scale.linear().range([0, height - margins[0] - margins[2]]);
     $svg = d3.select(".tree").append("svg").attr("class", "devices-histogram").attr("width", width).attr("height", height).append("g").attr("transform", "translate(" + margins[3] + "," + (height - margins[2]) + ")");
+    color = d3.scale.category10();
     updateTree = function(root, selectedSubscriptionMethods, selectedSubscriptionMethodsOr, excludeDesktop, killChildrenThreshold){
       var createMethodFilter, selectedMethodFilter, selectedVisits, selectedSubscribers, selectedStats, ref$, totalVisitsSelected, totalSubscribersSelected, convAverageSelected, convStnDevSelected, transition, untree, convMax, convMin, binSize, makeY0, blocks, $bin, $binEnter, $device, $deviceEnter, $renderNodeMethodsStats;
       killChildrenThreshold == null && (killChildrenThreshold = 100);
@@ -268,18 +269,28 @@
         return $renderNodeMethodsStats(it);
       });
       $deviceEnter.append('rect');
-      $device.select('rect').attr("width", function(){
+      $device.select('rect').attr('class', function(it){
+        return "node-" + it.treeId;
+      }).attr("width", function(){
         return x.rangeBand();
       }).attr("height", function(it){
         return y(it.y);
       }).attr("x", 0).attr("y", function(it){
         return -y(it.y0) - y(it.y);
+      }).style("fill", function(it){
+        return color(it.os);
       });
       $device.exit().remove();
       return $renderNodeMethodsStats = function(node){
         return $(window).trigger("tree/node-selected", [node]);
       };
     };
+    $(window).on("tree/node-selected", function(ref$, node){
+      d3.selectAll('rect.selected').classed('selected', false);
+      return eachTreeNode(function(it){
+        return d3.select(".node-" + it.treeId).classed('selected', true);
+      }, node);
+    });
     return {
       $svg: $svg,
       updateTree: updateTree

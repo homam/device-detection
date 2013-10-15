@@ -80,6 +80,8 @@ exports.devices-histogram = (width = 1000, height = 1000) ->
 	.attr("class", "devices-histogram")
 	.attr("width", width).attr("height", height).append("g").attr("transform", "translate(#{margins[3]},#{height - margins[2]})")
 
+	color = d3.scale.category10();
+
 	# root :: Node
 	# selectedSubscriptionMethods :: [String]
 	# selectedSubscriptionMethodsOr :: Bool
@@ -185,8 +187,10 @@ exports.devices-histogram = (width = 1000, height = 1000) ->
 		$deviceEnter = $device.enter().append('g').attr('class', 'device')
 		.on('mousedown', -> $render-node-methods-stats it)
 		$deviceEnter.append('rect')
-		$device.select('rect').attr("width", -> x.rangeBand()).attr("height", -> y(it.y))
+		$device.select('rect').attr('class', -> "node-#{it.treeId}")
+		.attr("width", -> x.rangeBand()).attr("height", -> y(it.y))
 		.attr("x", 0).attr("y", -> -y(it.y0) - y(it.y))
+		.style("fill", -> color(it.os))
 		$device.exit().remove()
 		
 
@@ -201,9 +205,9 @@ exports.devices-histogram = (width = 1000, height = 1000) ->
 		#$render-node-methods-stats root
 
 
-
-
-
+	$(window).on "tree/node-selected", (.., node) ->
+		d3.selectAll('rect.selected').classed('selected', false) # deselect currently selected one
+		each-tree-node (-> d3.select(".node-#{it.treeId}").classed('selected', true)), node
 
 	# return
 	{	

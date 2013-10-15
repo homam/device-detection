@@ -28,8 +28,8 @@ get-stats-by-superCampaign = (from, to, visits, superCampaign, ref, callback) --
 	obj <- request-json url
 	callback lower-case-data obj
 
-get-test-stats = (testid, from, to, country, callback) -->
-	url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetTestStats?test_id=#{testid}&start_date=#{from}&end_date=#{to}&country_id=#{country}&visits=0"
+get-test-stats = (testid, fromDate, toDate, country, callback) -->
+	url = make-request-path-and-queryString [['test_id', testid],['start_date', fromDate],['end_date', toDate],['country_id', country]], 'http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetTestStats'
 	console.log "api << ", url
 	obj <- request-json url
 	callback lower-case-data obj

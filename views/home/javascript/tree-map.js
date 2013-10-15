@@ -183,6 +183,10 @@
         return $(window).trigger("tree/node-selected", [node]);
       };
     };
+    $(window).on("tree/node-selected", function(ref$, node){
+      d3.selectAll('rect.selected').classed('selected', false);
+      return d3.select(".node-" + node.treeId).classed('selected', true);
+    });
     return {
       $svg: $svg,
       updateTree: updateTree

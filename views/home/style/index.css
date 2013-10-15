@@ -30,6 +30,12 @@ body {
   -ms-filter: none;
   filter: none;
 }
+.dialog .step {
+  display: none;
+}
+.dialog .step-1 {
+  display: block;
+}
 .dialog .dialog-inside {
   width: 600px;
   height: 500px;
@@ -45,6 +51,22 @@ body {
   top: 0;
   right: 0;
   cursor: pointer;
+}
+.dialog .dialog-inside button {
+  font-size: 14px;
+  padding: 5px 7px;
+  border: solid 1px #c0c0c0;
+  -webkit-border-radius: 8px;
+  border-radius: 8px;
+}
+.dialog .dialog-inside h3 {
+  font-size: 18px;
+  margin: 0 0 20px 0;
+  font-weight: normal;
+}
+.dialog#create-a-test-dialog .wurflId {
+  margin: 0 0 20px 0;
+  font-size: 16px;
 }
 .dialog#create-a-test-dialog select {
   width: 500px;

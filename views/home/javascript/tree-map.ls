@@ -157,7 +157,9 @@ exports.tree-map = (width = 1000, height = 1000) ->
 		#$render-node-methods-stats root
 
 
-
+	$(window).on "tree/node-selected", (.., node) ->
+		d3.selectAll('rect.selected').classed('selected', false) # deselect currently selected one
+		d3.select(".node-#{node.treeId}").classed('selected', true)
 
 
 

@@ -21,9 +21,15 @@ body
 	transition: .5s
 	color: white;
 	display: none
-	
+
 	&.visible
 		opacity: 1
+
+	.step
+		display:none
+
+	.step-1
+		display:block
 
 	.dialog-inside
 		width: 600px
@@ -40,8 +46,21 @@ body
 			top: 0;
 			right: 0;
 			cursor: pointer
+		button
+			font-size: 14px;
+			padding: 5px 7px;
+			border: solid 1px silver;
+			border-radius: 8px;
+		h3
+			font-size: 18px;
+			margin: 0 0 20px 0;
+			font-weight: normal;
+
 
 	&#create-a-test-dialog
+		.wurflId
+			margin: 0 0 20px 0;
+			font-size: 16px;
 		select
 			width: 500px
 		.select2-container
