@@ -66,7 +66,43 @@ body
 		.select2-container
 			display: block
 			margin-bottom: 20px
-			
+
+	&#conclude-a-test-dialog
+		ol.methods
+			> li
+				cursor: pointer
+				margin: 0;
+				padding: 5px 0;
+				color: #fff;
+				> span
+					display: inline-block
+					margin: 0 10px;
+					width: 40px;
+					&.method
+						font-weight: bold;
+						width: 100px;
+						margin-left: 10px;
+
+
+// conclide a test
+body.dragging, body.dragging * {
+  cursor: move !important;
+}
+
+.dragged {
+  position: absolute;
+  opacity: 0.5;
+  z-index: 2000;
+}
+
+ol.methods li.placeholder {
+  position: relative;
+  /** More li styles **/
+}
+ol.methodss li.placeholder:before {
+  position: absolute;
+  /** Define arrowhead **/
+}			
 		
 
 header

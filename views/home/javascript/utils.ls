@@ -14,14 +14,24 @@ each-tree-node = (func, node) -->
 	if !!node.children and !!node.children.length
 		each (each-tree-node func), node.children
 
-
 exports.each-tree-node = each-tree-node
+
+
+hard-clone = -> JSON.parse JSON.stringify it
+exports.hard-clone = hard-clone
+
 
 trace = (v) ->
 	console.log v
 	v
-
 exports.trace = trace
+
+
+sor = (a,b) -> if (!!a and a.length > 0 and a != ' ') then a else b
+exports.sor = sor
+
+
+exports.name-node = (n) -> n.device `sor` n.brand `sor` n.os `sor` ''
 
 
 

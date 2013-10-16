@@ -64,7 +64,9 @@ exports.test-summary = (testId, fromDate, toDate, country = 0, callback) ->
 	callback <| format data
 
 exports.tests-list = (activeOnly, callback) ->
-	raw <- request-json "http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetTestsSummary?status=#{if activeOnly then 'Active' else 'none'}"
+	url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/GetTestsSummary?status=#{if activeOnly then 'active' else 'none'}&rnd=" + Math.random()
+	console.log "api << ", url
+	raw <- request-json url
 
 	callback <| [{
 		id: r.Test_ID

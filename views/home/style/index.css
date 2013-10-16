@@ -75,6 +75,41 @@ body {
   display: block;
   margin-bottom: 20px;
 }
+.dialog#conclude-a-test-dialog ol.methods > li {
+  cursor: pointer;
+  margin: 0;
+  padding: 5px 0;
+  color: #fff;
+}
+.dialog#conclude-a-test-dialog ol.methods > li > span {
+  display: inline-block;
+  margin: 0 10px;
+  width: 40px;
+}
+.dialog#conclude-a-test-dialog ol.methods > li > span.method {
+  font-weight: bold;
+  width: 100px;
+  margin-left: 10px;
+}
+body.dragging,
+body.dragging * {
+  cursor: move !important;
+}
+.dragged {
+  position: absolute;
+  opacity: 0.5;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+  filter: alpha(opacity=50);
+  z-index: 2000;
+}
+ol.methods li.placeholder {
+  position: relative;
+/** More li styles **/
+}
+ol.methodss li.placeholder:before {
+  position: absolute;
+/** Define arrowhead **/
+}
 header {
   position: fixed;
   top: 0;

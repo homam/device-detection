@@ -8,6 +8,7 @@
         <script src="javascript/libs/d3-helper-tooltip.js"></script>
         <script src="javascript/libs/select2/select2.min.js"></script>
         <link href="javascript/libs/select2/select2.css" type="text/css" rel="Stylesheet" />
+        <script src="javascript/libs/jquery-sortable.js"></script>
         <link href="home/style/index.css" type="text/css" rel="Stylesheet" />
     </head>
 <body>
@@ -23,6 +24,22 @@
             </div>
             <div class="step step-2">
                 <h3>Test Created</h3>
+                <div class="wurflId"></div>
+                <div class="results"></div>
+            </div>
+        </div>
+    </div>
+    <div class="dialog" id="conclude-a-test-dialog">
+        <div class="dialog-inside">
+            <span class="dialog-close">&times;</span>
+            <div class="step step-1">
+                <h3>Conclude a Test</h3>
+                <div class="wurflId"></div>
+                <ol class="methods"></ol>
+                <button class='commit'>Conclude!</button>
+            </div>
+            <div class="step step-2">
+                <h3>Test Concluded!</h3>
                 <div class="wurflId"></div>
                 <div class="results"></div>
             </div>
@@ -58,7 +75,7 @@
     </section>
     <footer class="stats">
         <div class="summary">
-            <button id='create-a-test'>Test</button>
+            <button id='create-a-test' accesskey="t">Test</button>
             <h2></h2>
             <div class='all-methods-summary'>
             </div>
