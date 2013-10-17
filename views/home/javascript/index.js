@@ -244,6 +244,10 @@
       setTimeout(function(){
         return $('#loading').addClass('visible');
       }, 500);
+
+      // hack:
+      url = "data/ae.json";
+
       console.log('*** ', url);
       return $.get(url, function(r){
         root = r;
@@ -406,12 +410,14 @@
       if (!!countries && !!methods && !!countries.length && !!methods.length) {
         url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/CreateDeviceTest?wurfl_id=" + node.id + "&methods=" + methods + "&countries=" + countries;
         console.log("create-a-test url << ", url);
-        return $.get(url, function(result){
-          console.log('test created', result);
-          $('#create-a-test-dialog .step-1').hide();
-          $('#create-a-test-dialog .step-2').show();
-          return $('#create-a-test-dialog .step-2 .results').text("Test Created, ID = " + result[0].id);
-        });
+      $('#create-a-test-dialog .step-1').hide();
+      $('#create-a-test-dialog .step-2').show();
+//        return $.get(url, function(result){
+//          console.log('test created', result);
+//          $('#create-a-test-dialog .step-1').hide();
+//          $('#create-a-test-dialog .step-2').show();
+//          return $('#create-a-test-dialog .step-2 .results').text("Test Created, ID = " + result[0].id);
+//        });
       }
     });
   };
@@ -436,12 +442,14 @@
         return methodNames.indexOf(it.name) > -1;
       }, listOfSubscriptioMethods));
       methoIdsString = join(',', methodIds);
-      url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/ConcludeDeviceTest?test_id=" + testId + "&wurfl_id=" + node.id + "&methods=" + methoIdsString;
-      return $.get(url, function(result){
-        console.log(result);
-        $dialog.find('.step-1').hide();
-        return $dialog.find('.step-2').show();
-      });
+      $dialog.find('.step-1').hide();
+      return $dialog.find('.step-2').show();
+//      url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/ConcludeDeviceTest?test_id=" + testId + "&wurfl_id=" + node.id + "&methods=" + methoIdsString;
+//      return $.get(url, function(result){
+//        console.log(result);
+//        $dialog.find('.step-1').hide();
+//        return $dialog.find('.step-2').show();
+//      });
     });
     render = function(){
       var $li, $liEnter, renderMethodStats;
@@ -463,7 +471,7 @@
           ? 0
           : m.subscribers / m.visits);
       });
-      $liEnter.append('span').attr('class', 'close').text('x').on('click', function(d){
+      $liEnter.append('span').attr('class', 'close').text('×').on('click', function(d){
         stats = filter(function(it){
           return it.method !== d.method;
         }, stats);
