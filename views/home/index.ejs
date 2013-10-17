@@ -12,15 +12,16 @@
         <link href="home/style/index.css" type="text/css" rel="Stylesheet" />
     </head>
 <body>
+
     <div class="dialog" id="create-a-test-dialog">
         <div class="dialog-inside">
             <span class="dialog-close">&times;</span>
             <div class="step step-1">
-                <h3>Creata a Test</h3>
+                <h3>Create a Test</h3>
                 <div class="wurflId"></div>
                 <select id="chosen-create-test-countries" class="countries" data-placeholder="Countries" multiple></select>
                 <select id="chosen-create-test-methods" class="methods" data-placeholder="Methods" multiple></select>
-                <button class='commit'>Create the Test</button>
+                <button class='commit'>Create this Test</button>
             </div>
             <div class="step step-2">
                 <h3>Test Created</h3>
@@ -36,7 +37,8 @@
                 <h3>Conclude a Test</h3>
                 <div class="wurflId"></div>
                 <ol class="methods"></ol>
-                <button class='commit'>Conclude!</button>
+                <button class='commit'>Conclude this Test</button>
+				<button class='cancel'>Cancel this Test</button>
             </div>
             <div class="step step-2">
                 <h3>Test Concluded!</h3>
@@ -45,6 +47,7 @@
             </div>
         </div>
     </div>
+
 	<header>
 		<div>
             <select id="chosen-tests" data-placeholder="Test"></select>
@@ -53,6 +56,7 @@
             <select id="chosen-refs" data-placeholder="Ref"></select>
             <input type="date" id="fromDate" min="2013-07-01" max="2013-10-05"/> -
             <input type="date" id="toDate" min="2013-07-01" max="2013-10-04"/>
+			<button id='go'>Go</button>
         </div>
 		<div>
             <select id="chosen-tree-ui-type">
@@ -67,12 +71,15 @@
             <select id="chosen-find-wurfl-node" class="" data-placeholder="Find"></select>
         </div>
 	</header>
+
     <div id='loading'>
         loading...
     </div>
+
     <section class="tree">
     	
     </section>
+
     <footer class="stats">
         <div class="summary">
             <button id='create-a-test' accesskey="t">Test</button>
