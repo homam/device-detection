@@ -308,7 +308,18 @@ show-create-a-test-dialog = (node) ->
 show-conclude-a-test-dialog = (node) ->
 	dialog = show-dialog $('#conclude-a-test-dialog')
 	$('.wurflId').text(name-node node)
+	# stats :: [{method, visits, subscribers}]
 	stats = sort-by (-> it.conversion), node.stats
+
+	# all devices support DirectWAP (highest priority) and PIN and MO (lowest priority)
+	# [WAP] ++ stats ++ [WAPPIN, SMS_WAP]
+	make-stat = (method, visits, subscribers) -> 
+		if (filter (-> it.method == method), stats).length == 0
+			[{method: method, visits: visits, subscribers: subscribers}]
+		else
+			[]
+	stats = make-stat('WAP', 1, 1) ++ stats ++ make-stat('WAPPIN', 1, 1) ++ make-stat('SMS_WAP', 1, 1)
+
 	testId = parseInt $('#chosen-tests').val()
 
 	$dialog = $('#conclude-a-test-dialog')

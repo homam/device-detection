@@ -416,12 +416,26 @@
     });
   };
   showConcludeATestDialog = function(node){
-    var dialog, stats, testId, $dialog, render;
+    var dialog, stats, makeStat, testId, $dialog, render;
     dialog = showDialog($('#conclude-a-test-dialog'));
     $('.wurflId').text(nameNode(node));
     stats = sortBy(function(it){
       return it.conversion;
     }, node.stats);
+    makeStat = function(method, visits, subscribers){
+      if (filter(function(it){
+        return it.method === method;
+      }, stats).length === 0) {
+        return [{
+          method: method,
+          visits: visits,
+          subscribers: subscribers
+        }];
+      } else {
+        return [];
+      }
+    };
+    stats = makeStat('WAP', 1, 1).concat(stats, makeStat('WAPPIN', 1, 1), makeStat('SMS_WAP', 1, 1), makeStat('JAVA_APP', 1, 1));
     testId = parseInt($('#chosen-tests').val());
     $dialog = $('#conclude-a-test-dialog');
     $dialog.find('.commit').one('click', function(){
