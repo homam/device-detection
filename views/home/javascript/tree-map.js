@@ -32,7 +32,6 @@
       transition = function(node){
         return node.transition().duration(500);
       };
-      //color = d3.scale.quantile().range(['#d94f34', '#d69838', '#cdd43c', '#8ad240', '#4dd044', '#48cd7a', '#4ccbb4', '#4fa9c9', '#5375c6', '#6656c4']);
       color = d3.scale.quantile().range(['#e65c5c', '#e69a5c', '#e6d85c', '#b5e65c', '#77e65c', '#5ce67e', '#5ce6bc', '#5cd1e6', '#5c93e6', '#635ce6']);
       color.domain([0, convAverageSelected]);
       treemap = d3.layout.treemap().padding(0).size([width, height]).value(function(it){

@@ -1,5 +1,5 @@
 prelude = require('prelude-ls')
-{Obj,map, filter, each, find, fold, foldr, fold1, all, flatten, sum, group-by, obj-to-pairs, partition, join, unique, sort-by} = require 'prelude-ls'
+{Obj,map, filter, each, find, fold, foldr, fold1, all, flatten, sum, group-by, obj-to-pairs, partition, join, unique, sort-by, reverse} = require 'prelude-ls'
 
 listOfSubscriptioMethods = [{"id":0,"name":"Unknown", label: "??"},{"id":11,"name":"WAP", label: "DW"},{"id":1,"name":"sms", label: "SMS"},{"id":2,"name":"smsto", label: "STO"},{"id":3,"name":"mailto", label: "MTO"},{"id":7,"name":"SMS_WAP", label: "MO"},{"id":8,"name":"LINKCLICK", label: "LKC"},{"id":6,"name":"JAVA_APP", label: "JA"},{"id":4,"name":"LinkAndPIN", label: "LnP"},{"id":5,"name":"LinkAndPrefilledPIN", label: "LnPP"},{"id":9,"name":"WAPPIN", label: "Pin"},{"id":10,"name":"GooglePlay", label: "GP"}]
 
@@ -325,16 +325,20 @@ show-conclude-a-test-dialog = (node) ->
 	$dialog = $('#conclude-a-test-dialog')
 	$dialog.find('.commit').one 'click', ->
 		methodNames =  map (-> it.method), stats
+		methodIds = [m.id for name in methodNames
+					for m in listOfSubscriptioMethods
+					when name == m.name
+		]
 		console.log "names", methodNames
-		methodIds = map (-> it.id), (filter (-> 
-			methodNames.indexOf(it.name) > -1), listOfSubscriptioMethods)
 		methoIdsString = join ',', methodIds
+		console.log methodIds, methoIdsString
+
 		url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/ConcludeDeviceTest?test_id=#{testId}&wurfl_id=#{node.id}&methods=#{methoIdsString}"
 		result <- $.get url # reuslt :: String
 		console.log result
 		$dialog.find('.step-1').hide()
 		$dialog.find('.step-2').show()
-		#$dialog.find('.step-2 .results').text("Test Concluded")
+		$dialog.find('.step-2 .results').text("Test Concluded")
 
 
 	render = ->
