@@ -99,7 +99,7 @@ $ ->
 		add-parent-to-node = (parent, n) -->
 			n._parent = parent;
 			if !!n.children
-				each (add-parent-to-node n), n.children
+				n.children = map (add-parent-to-node n), n.children
 			n
 
 

@@ -15,7 +15,8 @@ reduce-tree = (method, property, node) ->
 	| otherwise => fold1 (+), flatten [reduce-tree(method, property, c) for c in node.children]
 
 
-
+# raw :: [{device, fall_back, os, brand, stats: [{method, visits, subscribers}], children: [RAW]}]
+# -> Node :: {..., children: [Node]}
 treefy = do -> (raw) ->
 
 	# every node might be a parent

@@ -170,7 +170,7 @@
       addParentToNode = curry$(function(parent, n){
         n._parent = parent;
         if (!!n.children) {
-          each(addParentToNode(n), n.children);
+          n.children = map(addParentToNode(n), n.children);
         }
         return n;
       });
