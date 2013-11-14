@@ -52,6 +52,10 @@
       "id": 10,
       "name": "GooglePlay",
       label: "GP"
+    }, {
+      "id": 12,
+      "name": "BANNER_JAVAAPP",
+      label: "JAB"
     }
   ];
   formatDate = d3.time.format('%Y-%m-%d');
