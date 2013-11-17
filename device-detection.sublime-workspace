@@ -243,7 +243,7 @@
 			"file": "views/home/javascript/index.ls",
 			"settings":
 			{
-				"buffer_size": 14132,
+				"buffer_size": 14180,
 				"line_ending": "Windows"
 			}
 		},
@@ -294,6 +294,14 @@
 			{
 				"buffer_size": 3642,
 				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/homam_000/AppData/Roaming/Sublime Text 3/Packages/User/Stylus.sublime-build",
+			"settings":
+			{
+				"buffer_size": 207,
+				"line_ending": "Unix"
 			}
 		}
 	],
@@ -356,6 +364,7 @@
 	},
 	"file_history":
 	[
+		"/C/GitHub/device-detection-client/views/home/javascript/tree-map.ls",
 		"/C/GitHub/device-detection-client/views/home/javascript/index.js",
 		"/C/GitHub/device-detection-client/views/home/javascript/tree-map.js",
 		"/C/GitHub/device-detection-client/routes/index.ls",
@@ -552,15 +561,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 14132,
+						"buffer_size": 14180,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2804,
-								2804
+								2852,
+								2852
 							]
 						],
 						"settings":
@@ -673,8 +682,8 @@
 						"selection":
 						[
 							[
-								621,
-								621
+								1812,
+								1812
 							]
 						],
 						"settings":
@@ -683,7 +692,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 600.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -758,15 +767,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 14132,
+						"buffer_size": 14180,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								930,
-								871
+								755,
+								755
 							]
 						],
 						"settings":
@@ -775,35 +784,33 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 41.0,
+						"translation.y": 924.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 5,
-					"file": "views/home/javascript/tree-map.ls",
+					"buffer": 9,
+					"file": "/C/Users/homam_000/AppData/Roaming/Sublime Text 3/Packages/User/Stylus.sublime-build",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3071,
+						"buffer_size": 207,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1223,
-								1223
+								4,
+								0
 							]
 						],
 						"settings":
 						{
-							"auto_name": "",
-							"syntax": "Packages/LiveScript.tmbundle/Syntaxes/CoffeeScript.tmLanguage",
-							"translate_tabs_to_spaces": false
+							"syntax": "Packages/JavaScript/JSON.tmLanguage"
 						},
-						"translation.x": 250.0,
+						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
