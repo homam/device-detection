@@ -1,7 +1,7 @@
 prelude = require('prelude-ls')
 {Obj,map, filter, each, find, fold, foldr, fold1, all, flatten, sum, group-by, obj-to-pairs, partition, join, unique, sort-by, reverse} = require 'prelude-ls'
 
-listOfSubscriptioMethods = [{"id":0,"name":"Unknown", label: "??"},{"id":11,"name":"WAP", label: "DW"},{"id":1,"name":"sms", label: "SMS"},{"id":2,"name":"smsto", label: "STO"},{"id":3,"name":"mailto", label: "MTO"},{"id":7,"name":"SMS_WAP", label: "MO"},{"id":8,"name":"LINKCLICK", label: "LKC"},{"id":6,"name":"JAVA_APP", label: "JA"},{"id":4,"name":"LinkAndPIN", label: "LnP"},{"id":5,"name":"LinkAndPrefilledPIN", label: "LnPP"},{"id":9,"name":"WAPPIN", label: "Pin"},{"id":10,"name":"GooglePlay", label: "GP"},{"id":12,"name":"BANNER_JAVAAPP", label: "JAB"}]
+listOfSubscriptionMethods = [{"id":0,"name":"Unknown", label: "??"},{"id":11,"name":"WAP", label: "DW"},{"id":1,"name":"sms", label: "SMS"},{"id":2,"name":"smsto", label: "STO"},{"id":3,"name":"mailto", label: "MTO"},{"id":7,"name":"SMS_WAP", label: "MO"},{"id":8,"name":"LINKCLICK", label: "LKC"},{"id":6,"name":"JAVA_APP", label: "JA"},{"id":4,"name":"LinkAndPIN", label: "LnP"},{"id":5,"name":"LinkAndPrefilledPIN", label: "LnPP"},{"id":9,"name":"WAPPIN", label: "Pin"},{"id":10,"name":"GooglePlay", label: "GP"},{"id":12,"name":"BANNER_JAVAAPP", label: "JAB"}]
 
 # utility functions region
 
@@ -196,7 +196,7 @@ $ ->
 
 	# D3Selection <select> -> D3Selections <option>
 	populate-methods = ($d3select) ->
-		$d3select.selectAll('option').data(listOfSubscriptioMethods)
+		$d3select.selectAll('option').data(listOfSubscriptionMethods)
 		.enter().append('option').text(-> it.name)
 	
 	# header
@@ -291,7 +291,7 @@ show-dialog = ($selector) ->
 
 show-create-a-test-dialog = (node) ->
 	dialog = show-dialog $('#create-a-test-dialog')
-	$('.wurflId').text(name-node node)
+	$('.wurflId').text name-node node
 	$('#create-a-test-dialog .commit').one 'click', ->
 		countries = $('#chosen-create-test-countries').val()
 		methods = $('#chosen-create-test-methods').val()
@@ -318,15 +318,25 @@ show-conclude-a-test-dialog = (node) ->
 			[{method: method, visits: visits, subscribers: subscribers}]
 		else
 			[]
+
+	# stats :: [{method, visits, subscribers}]
 	stats = make-stat('WAP', 1, 1) ++ stats ++ make-stat('WAPPIN', 1, 1) ++ make-stat('SMS_WAP', 1, 1)
 
 	testId = parseInt $('#chosen-tests').val()
 
 	$dialog = $('#conclude-a-test-dialog')
+
+	$dialog.find('.cancel').one 'click', ->
+		result <- $.get "http://mobitransapi.mozook.com/devicetestingservice.svc/json/InterruptDeviceTest?test_id=#{testId}"
+		console.log result
+		$dialog.find('.step-1').hide!
+		$dialog.find('.step-2').show!
+		$dialog.find('.step-2 .results').text("Test Interrupted")
+
 	$dialog.find('.commit').one 'click', ->
 		methodNames =  map (-> it.method), stats
 		methodIds = [m.id for name in methodNames
-					for m in listOfSubscriptioMethods
+					for m in listOfSubscriptionMethods
 					when name == m.name
 		]
 		console.log "names", methodNames
@@ -336,28 +346,36 @@ show-conclude-a-test-dialog = (node) ->
 		url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/ConcludeDeviceTest?test_id=#{testId}&wurfl_id=#{node.id}&methods=#{methoIdsString}"
 		result <- $.get url # reuslt :: String
 		console.log result
-		$dialog.find('.step-1').hide()
-		$dialog.find('.step-2').show()
+		$dialog.find('.step-1').hide!
+		$dialog.find('.step-2').show!
 		$dialog.find('.step-2 .results').text("Test Concluded")
 
 
 	render = ->
-		console.log stats
+		console.log "render", stats
 
-		$li = d3.select("ol.methods").selectAll('li.method').data(stats)
-		$liEnter = $li.enter().append('li').attr('class', 'method')
-		$li.exit().remove()
+		$li = d3.select("ol.methods").selectAll('li.method').data stats
+		$liEnter = $li.enter().append('li').attr 'class', 'method'
+		$li.exit().remove!
+		$li.attr 'data-method', (.method)
 
 		render-method-stats = (className, text) -> 
-			$liEnter.append("span").attr("class", className)
-			$li.select("span.#{className}").text(text)
+			$liEnter.append("span").attr "class", className
+			$li.select("span.#{className}").text text
+
 		each (-> render-method-stats it, (m) -> m[it]), ['method', 'visits', 'subscribers']
 		render-method-stats 'conversion', (m) -> d3.format('.1%')(if m.visits == 0 then 0 else (m.subscribers / m.visits))
 		$liEnter.append('span').attr('class', 'close').text('x').on 'click', (d)->
 			stats := filter (-> it.method != d.method), stats
 			render!
 
-		$("ol.methods").sortable!
+		$("ol.methods").sortable! .bind 'sortupdate', ->
+			names = $ 'ol.methods > li.method' .map -> $ this .attr 'data-method'
+			stats := map (name) -> 
+				find ((s) -> s.method == name ), stats
+			, names
+			render!
+
 
 	render!
 
