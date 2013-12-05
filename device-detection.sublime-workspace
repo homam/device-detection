@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"meth",
+				"method"
+			],
+			[
 				"method",
 				"methodNames"
 			],
@@ -118,10 +122,6 @@
 			[
 				"get",
 				"get-stats"
-			],
-			[
-				"meth",
-				"method-ids"
 			],
 			[
 				"con",
@@ -240,34 +240,18 @@
 			}
 		},
 		{
-			"file": "views/home/javascript/index.ls",
-			"settings":
-			{
-				"buffer_size": 14180,
-				"line_ending": "Windows"
-			}
-		},
-		{
 			"file": "views/home/index.ejs",
 			"settings":
 			{
-				"buffer_size": 4177,
+				"buffer_size": 4179,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "views/home/style/index.styl",
+			"file": "views/home/javascript/index.ls",
 			"settings":
 			{
-				"buffer_size": 7313,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "views/home/javascript/tree-map.ls",
-			"settings":
-			{
-				"buffer_size": 3071,
+				"buffer_size": 14763,
 				"line_ending": "Windows"
 			}
 		},
@@ -280,28 +264,11 @@
 			}
 		},
 		{
-			"file": "views/home/javascript/tree-map-fontsize.js",
+			"file": "stats/createATest.ls",
 			"settings":
 			{
-				"buffer_size": 2019,
-				"line_ending": "Windows",
-				"name": "function fontSize(d,i) {"
-			}
-		},
-		{
-			"file": "views/home/javascript/tree-longBranches.ls",
-			"settings":
-			{
-				"buffer_size": 3642,
+				"buffer_size": 1037,
 				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "/C/Users/homam_000/AppData/Roaming/Sublime Text 3/Packages/User/Stylus.sublime-build",
-			"settings":
-			{
-				"buffer_size": 207,
-				"line_ending": "Unix"
 			}
 		}
 	],
@@ -364,18 +331,21 @@
 	},
 	"file_history":
 	[
+		"/C/Users/homam_000/AppData/Roaming/Sublime Text 3/Packages/User/Stylus.sublime-build",
 		"/C/GitHub/device-detection-client/views/home/javascript/tree-map.ls",
+		"/C/GitHub/device-detection-client/views/home/style/index.styl",
+		"/C/GitHub/device-detection-client/views/home/javascript/tree-map-fontsize.js",
+		"/C/GitHub/device-detection-client/views/home/javascript/tree-longBranches.ls",
+		"/C/GitHub/device-detection-client/views/home/javascript/index.ls",
+		"/C/GitHub/device-detection-client/views/home/javascript/utils.ls",
 		"/C/GitHub/device-detection-client/views/home/javascript/index.js",
 		"/C/GitHub/device-detection-client/views/home/javascript/tree-map.js",
 		"/C/GitHub/device-detection-client/routes/index.ls",
 		"/C/GitHub/device-detection-client/stats/testsSummary.ls",
-		"/C/Users/homam_000/AppData/Roaming/Sublime Text 3/Packages/User/Stylus.sublime-build",
 		"/C/GitHub/device-detection-client/app.ls",
 		"/C/GitHub/device-detection-client/stats/stats.ls",
 		"/C/GitHub/device-detection-client/stats/treefy.ls",
-		"/C/GitHub/device-detection-client/views/home/javascript/tree-longBranches.ls",
 		"/C/GitHub/device-detection-client/device-detection.sublime-project",
-		"/C/GitHub/device-detection-client/views/home/style/index.styl",
 		"/C/Users/homam_000/AppData/Roaming/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
 		"/C/Users/homam_000/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/C/GitHub/device-detection-client/views/home/javascript/[cmd",
@@ -401,7 +371,7 @@
 	},
 	"find_in_files":
 	{
-		"height": 0.0,
+		"height": 90.0,
 		"where_history":
 		[
 		]
@@ -411,6 +381,11 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"with",
+			"listOfSubscriptioMethods",
+			"drag",
+			"cabce",
+			"cabcek",
 			"transitionDuration",
 			"axis",
 			"tree",
@@ -483,6 +458,7 @@
 		"regex": false,
 		"replace_history":
 		[
+			"listOfSubscriptionMethods",
 			"val",
 			"",
 			"it."
@@ -496,7 +472,7 @@
 	"groups":
 	[
 		{
-			"selected": 6,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -557,47 +533,19 @@
 				},
 				{
 					"buffer": 2,
-					"file": "views/home/javascript/index.ls",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 14180,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2852,
-								2852
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/LiveScript.tmbundle/Syntaxes/CoffeeScript.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 7.0,
-						"translation.y": 5.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 3,
 					"file": "views/home/index.ejs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4177,
+						"buffer_size": 4179,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								831,
-								831
+								1369,
+								1369
 							]
 						],
 						"settings":
@@ -607,150 +555,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "views/home/style/index.styl",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7313,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								5751,
-								5751
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Stylus/Stylus.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 4394.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "views/home/javascript/tree-map.ls",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3071,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2603,
-								2603
-							]
-						],
-						"settings":
-						{
-							"auto_name": "",
-							"syntax": "Packages/LiveScript.tmbundle/Syntaxes/CoffeeScript.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 866.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "views/home/javascript/utils.ls",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3673,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1812,
-								1812
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/LiveScript.tmbundle/Syntaxes/CoffeeScript.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 600.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "views/home/javascript/tree-map-fontsize.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2019,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								80,
-								80
-							]
-						],
-						"settings":
-						{
-							"auto_name": "function fontSize(d,i) {",
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "views/home/javascript/tree-longBranches.ls",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3642,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3642,
-								3642
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/LiveScript.tmbundle/Syntaxes/CoffeeScript.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1288.0,
+						"translation.y": 8.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -762,20 +567,20 @@
 			"sheets":
 			[
 				{
-					"buffer": 2,
+					"buffer": 3,
 					"file": "views/home/javascript/index.ls",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 14180,
+						"buffer_size": 14763,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								755,
-								755
+								13129,
+								13129
 							]
 						],
 						"settings":
@@ -784,31 +589,59 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 924.0,
+						"translation.y": 4574.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 9,
-					"file": "/C/Users/homam_000/AppData/Roaming/Sublime Text 3/Packages/User/Stylus.sublime-build",
-					"semi_transient": false,
+					"buffer": 4,
+					"file": "views/home/javascript/utils.ls",
+					"semi_transient": true,
 					"settings":
 					{
-						"buffer_size": 207,
+						"buffer_size": 3673,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4,
+								3378,
+								3381
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LiveScript.tmbundle/Syntaxes/CoffeeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1157.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "stats/createATest.ls",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1037,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
 								0
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JSON.tmLanguage"
+							"syntax": "Packages/LiveScript.tmbundle/Syntaxes/CoffeeScript.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -847,7 +680,7 @@
 		"cols":
 		[
 			0.0,
-			0.486497890295,
+			0.432443836241,
 			1.0
 		],
 		"rows":
@@ -859,7 +692,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 24.0
+		"height": 85.0
 	},
 	"project": "device-detection.sublime-project",
 	"replace":
