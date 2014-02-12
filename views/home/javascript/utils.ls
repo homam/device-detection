@@ -1,6 +1,18 @@
-{Obj,map, filter, each, find, fold, foldr, fold1, all, flatten, sum, group-by, obj-to-pairs, partition, join, unique} = require 'prelude-ls'
+{Obj, empty, break-list, reverse, map, filter, each, find, fold, foldr, fold1, all, flatten, sum, group-by, obj-to-pairs, partition, join, unique} = require 'prelude-ls'
 
 exports = exports or this
+
+# list: [a]
+# condition :: a -> Bool
+# newElement :: a
+exports.insertAfter = (condition, newElement, list) ->
+	reverse >> (break-list condition) >> (([h,t]) -> 
+		if empty t then h else h ++ [newElement] ++ t
+	) >> reverse <| list
+
+
+
+
 # node: any node in the tree
 # func: folding function :: (Node, Acc) -> Acc
 # seed :: Acc

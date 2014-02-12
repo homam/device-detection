@@ -1,5 +1,5 @@
 prelude = require('prelude-ls')
-{Obj,map, filter, each, find, fold, foldr, fold1, all, flatten, sum, group-by, obj-to-pairs, partition, join, unique, sort-by, reverse} = require 'prelude-ls'
+{Obj,map, filter, each, head, find, fold, foldr, fold1, all, flatten, sum, group-by, obj-to-pairs, partition, join, unique, sort-by, reverse} = require 'prelude-ls'
 
 listOfSubscriptionMethods = [{"id":0,"name":"Unknown", label: "??"},{"id":11,"name":"WAP", label: "DW"},{"id":1,"name":"sms", label: "SMS"},{"id":2,"name":"smsto", label: "STO"},{"id":3,"name":"mailto", label: "MTO"},{"id":7,"name":"SMS_WAP", label: "MO"},{"id":8,"name":"LINKCLICK", label: "LKC"},{"id":6,"name":"JAVA_APP", label: "JA"},{"id":4,"name":"LinkAndPIN", label: "LnP"},{"id":5,"name":"LinkAndPrefilledPIN", label: "LnPP"},{"id":9,"name":"WAPPIN", label: "Pin"},{"id":10,"name":"GooglePlay", label: "GP"},{"id":12,"name":"BANNER_JAVAAPP", label: "JAB"}]
 
@@ -30,8 +30,8 @@ $ ->
 		allMethodsSummary.conversion = allMethodsSummary.subscribers/allMethodsSummary.visits
 		
 		$summarySpan = d3.select('.all-methods-summary').selectAll('span').data(obj-to-pairs allMethodsSummary)
-		$summarySpan.enter().append('span').attr('class',->it[0])
-		$summarySpan.text(-> (if 'conversion' == it[0] then d3.format('.1%') else d3.format(','))  it[1])
+			..enter().append('span').attr('class',->it[0])
+			..text(-> (if 'conversion' == it[0] then d3.format('.1%') else d3.format(','))  it[1])
 
 
 		# render stats for each subscription method
@@ -306,10 +306,6 @@ show-create-a-test-dialog = (node) ->
 
 
 show-conclude-a-test-dialog = (node) ->
-	dialog = show-dialog $('#conclude-a-test-dialog')
-	$('.wurflId').text(name-node node)
-	# stats :: [{method, visits, subscribers}]
-	stats = sort-by (-> it.conversion), node.stats
 
 	# all devices support DirectWAP (highest priority) and PIN and MO (lowest priority)
 	# [WAP] ++ stats ++ [WAPPIN, SMS_WAP]
@@ -318,6 +314,16 @@ show-conclude-a-test-dialog = (node) ->
 			[{method: method, visits: visits, subscribers: subscribers}]
 		else
 			[]
+
+
+	dialog = show-dialog $('#conclude-a-test-dialog')
+	$('.wurflId').text(name-node node)
+	# stats :: [{method, visits, subscribers}]
+	stats = sort-by (-> it.subscribers / (it.visits ? 1)), node.stats
+
+	stats = insertAfter (.method=='BANNER_JAVAAPP'), (head make-stat('JAVA_APP', 1, 1)), stats
+
+
 
 	# stats :: [{method, visits, subscribers}]
 	stats = make-stat('WAP', 1, 1) ++ stats ++ make-stat('WAPPIN', 1, 1) ++ make-stat('SMS_WAP', 1, 1)
@@ -343,6 +349,8 @@ show-conclude-a-test-dialog = (node) ->
 		methoIdsString = join ',', methodIds
 		console.log methodIds, methoIdsString
 
+		debugger;
+		return
 		url = "http://mobitransapi.mozook.com/devicetestingservice.svc/json/ConcludeDeviceTest?test_id=#{testId}&wurfl_id=#{node.id}&methods=#{methoIdsString}"
 		result <- $.get url # reuslt :: String
 		console.log result
@@ -366,8 +374,10 @@ show-conclude-a-test-dialog = (node) ->
 		each (-> render-method-stats it, (m) -> m[it]), ['method', 'visits', 'subscribers']
 		render-method-stats 'conversion', (m) -> d3.format('.1%')(if m.visits == 0 then 0 else (m.subscribers / m.visits))
 		$liEnter.append('span').attr('class', 'close').text('x').on 'click', (d)->
-			stats := filter (-> it.method != d.method), stats
+			method = this.dataset.method
+			stats := filter (-> !!it and it.method != method), stats
 			render!
+		$li.select \span.close .attr \data-method, (.method)
 
 		$("ol.methods").sortable! .bind 'sortupdate', ->
 			names = $ 'ol.methods > li.method' .map -> $ this .attr 'data-method'
